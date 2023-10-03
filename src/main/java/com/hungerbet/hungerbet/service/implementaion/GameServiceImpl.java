@@ -71,13 +71,25 @@ public class GameServiceImpl implements GameService {
         happenedEventsRepository.save(startGameEvent);
         game.addHappenedEvent(startGameEvent);
 
-        if(game.IsFinish()){
+        if (game.IsFinish()) {
             HappenedEvent happenedEvent = new HappenedEvent("Игра закончилась", "", currentDate, HappenedEventType.OTHERS);
             happenedEventsRepository.save(happenedEvent);
             game.addHappenedEvent(happenedEvent);
             game.Finish();
         }
 
+        gameRepository.save(game);
+
+        return game;
+    }
+
+    @Override
+    public Game update(UUID gameId, CreateGameModel createGameRequest) throws NotFoundException {
+        Game game = gameRepository.findById(gameId).orElseThrow(() -> new NotFoundException("Game not found"));
+        game.setArenaInfo(createGameRequest.getArenInfo());
+        game.setStartDate(createGameRequest.getStartedAt());
+        game.setName(createGameRequest.getName());
+        game.setDescription(createGameRequest.getDescription());
         gameRepository.save(game);
 
         return game;

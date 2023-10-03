@@ -20,4 +20,6 @@ public interface GameService {
     List<Game> getPublishedGames();
 
     Game startGame(UUID gameId) throws NotFoundException, BadRequestException;
+
+    Game update(UUID gameId, CreateGameModel createGameRequest) throws NotFoundException;
 }

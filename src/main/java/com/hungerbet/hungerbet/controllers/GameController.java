@@ -33,6 +33,12 @@ public class GameController {
         return gameService.create(createGameRequest);
     }
 
+    @PutMapping("/{gameId}")
+    @PreAuthorize("hasAuthority('Manager')")
+    public Game update(@PathVariable UUID gameId, @RequestBody CreateGameModel createGameRequest) throws NotFoundException {
+        return gameService.update(gameId, createGameRequest);
+    }
+
     //TODO update game
 
     @PostMapping("/{gameId}/publish")
