@@ -6,6 +6,7 @@ import com.hungerbet.hungerbet.repository.UserRepository;
 import com.hungerbet.hungerbet.service.implementaion.UserInfoService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.web.server.authorization.AuthorizationContext;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -29,8 +30,10 @@ public class UserController
     @GetMapping
     public User getUser(@RequestParam String login) throws NotFoundException {
         User user =  userRepository.findByLogin(login).orElseThrow(() -> new NotFoundException("Not found"));
-        user.getManager().setUser(null);
-        user.getManager().setGame(null);
+        if(user.getManager() != null) {
+            user.getManager().setUser(null);
+            user.getManager().setGame(null);
+        }
         return user;
     }
 }
