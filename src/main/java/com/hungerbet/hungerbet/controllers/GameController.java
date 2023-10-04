@@ -18,6 +18,7 @@ import java.util.UUID;
 @RestController
 @SecurityRequirement(name = "bearerAuth")
 @RequestMapping("/games")
+@CrossOrigin(origins = "*")
 public class GameController {
     @Autowired
     private final GameService gameService;

@@ -17,6 +17,7 @@ import java.util.UUID;
 @RestController
 @SecurityRequirement(name = "bearerAuth")
 @RequestMapping("/participants")
+@CrossOrigin(origins = "*")
 @PreAuthorize("hasAuthority('Manager')")
 public class ParticipantController {
 

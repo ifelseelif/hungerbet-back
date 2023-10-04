@@ -15,6 +15,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/planned-game-events")
 @SecurityRequirement(name = "bearerAuth")
+@CrossOrigin(origins = "*")
 @PreAuthorize("hasAuthority('Manager')")
 public class PlannedEventController {
 

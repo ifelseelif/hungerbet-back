@@ -15,6 +15,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/game-events")
+@CrossOrigin(origins = "*")
 public class GameEventController {
     @Autowired
     GameEventService gameEventService;
