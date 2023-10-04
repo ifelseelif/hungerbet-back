@@ -22,7 +22,7 @@ public class Game {
     private String arenaInfo;
     private String description;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "winner_id")
     private Participant winner;
 
@@ -35,7 +35,7 @@ public class Game {
     @OneToMany(fetch = FetchType.EAGER)
     private List<HappenedEvent> happenedEvents;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "manager_id")
     private Manager manager;
 
