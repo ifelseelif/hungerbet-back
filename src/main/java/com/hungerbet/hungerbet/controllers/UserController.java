@@ -14,6 +14,7 @@ import java.util.Optional;
 @RestController
 @SecurityRequirement(name = "bearerAuth")
 @RequestMapping("/users")
+@CrossOrigin(origins = "*")
 public class UserController
 {
     @Autowired
