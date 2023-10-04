@@ -25,6 +25,7 @@ public class User {
     @JsonIgnore
     private Manager manager;
 
+    @JsonIgnore
     private String login;
 
     public User(String firstName, String secondName, String login, String passwd, double balance) {
