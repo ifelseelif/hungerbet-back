@@ -21,6 +21,7 @@ public class Game {
     private Date endDate;
     private String arenaInfo;
     private String description;
+    private String arena;
 
     @ManyToOne
     @JoinColumn(name = "winner_id")
@@ -41,11 +42,12 @@ public class Game {
 
     public Game(String name, GameStatus status,
                 Date startDate, String arenaInfo,
-                String description) {
+                String description, String arena) {
         this.name = name;
         this.status = status;
         this.startDate = startDate;
         this.arenaInfo = arenaInfo;
+        this.arena = arena;
         this.description = description;
         this.participants = new ArrayList<>();
         this.happenedEvents = new ArrayList<>();

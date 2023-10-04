@@ -28,7 +28,7 @@ public class GameServiceImpl implements GameService {
     @Override
     public Game create(CreateGameModel createGameModel) {
         Game game = new Game(createGameModel.getName(), GameStatus.DRAFT, createGameModel.getStartedAt(),
-                createGameModel.getArenInfo(), createGameModel.getDescription());
+                createGameModel.getArenInfo(), createGameModel.getDescription(), createGameModel.getArena());
         gameRepository.save(game);
 
         return game;
@@ -90,6 +90,7 @@ public class GameServiceImpl implements GameService {
         game.setStartDate(createGameRequest.getStartedAt());
         game.setName(createGameRequest.getName());
         game.setDescription(createGameRequest.getDescription());
+        game.setArena(createGameRequest.getArena());
         gameRepository.save(game);
 
         return game;

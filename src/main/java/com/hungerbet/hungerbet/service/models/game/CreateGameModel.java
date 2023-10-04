@@ -11,4 +11,5 @@ public class CreateGameModel {
     private String arenInfo;
     private String description;
     private boolean isQuarterlyMassacre;
+    private String arena;
 }
