@@ -1,5 +1,6 @@
 package com.hungerbet.hungerbet.entity.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,6 +22,7 @@ public class User {
     private double balanceMoney;
 
     @OneToOne(mappedBy = "user")
+    @JsonIgnore
     private Manager manager;
 
     private String login;

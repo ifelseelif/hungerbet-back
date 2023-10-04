@@ -1,5 +1,6 @@
 package com.hungerbet.hungerbet.entity.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -15,7 +16,4 @@ public class Manager {
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
-
-    @OneToOne(mappedBy = "manager")
-    private Game game;
 }

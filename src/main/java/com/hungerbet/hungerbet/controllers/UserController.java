@@ -32,7 +32,6 @@ public class UserController
         User user =  userRepository.findByLogin(login).orElseThrow(() -> new NotFoundException("Not found"));
         if(user.getManager() != null) {
             user.getManager().setUser(null);
-            user.getManager().setGame(null);
         }
         return user;
     }
