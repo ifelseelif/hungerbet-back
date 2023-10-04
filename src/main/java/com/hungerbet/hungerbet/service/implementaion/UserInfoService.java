@@ -31,7 +31,7 @@ public class UserInfoService implements UserDetailsService {
         }
 
         request.setPassword(encoder.encode(request.getPassword()));
-        User user = new User(request.getFirstName(), request.getSecondName(), request.getLogin(), request.getPassword(), 1000);
+        User user = new User(request.getFirstName(), request.getSecondName(), request.getLogin(), request.getPassword(), 0);
         repository.save(user);
 
         return user.getId();
