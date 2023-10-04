@@ -10,4 +10,7 @@ public class HungerbetApplication {
     public static void main(String[] args) {
         SpringApplication.run(HungerbetApplication.class, args);
     }
+
+
+
 }
