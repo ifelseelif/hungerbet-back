@@ -1,0 +1,569 @@
+openapi: 3.0.3
+info:
+  title: BetHunger - OpenAPI 3.0
+  version: 0.0.1
+externalDocs:
+  description: GitHub Project
+  url: https://github.com/ifelseelif/hungerbet-back
+servers:
+  - url: https://localhost:8080
+tags:
+  - name: authorization
+  - name: games
+  - name: events
+  - name: account
+paths:
+  /auth/register:
+    post:
+      tags:
+        - authorization
+      summary: User registration
+      operationId: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                  example: Иван
+                lastName:
+                  type: string
+                  example: Иванов
+                login:
+                  type: string
+                  example: username
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  example: userpassword
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userId:
+                    type: string
+                    format: uuid
+        '400':
+          description: Bad Request
+        '409':
+          description: User with this login already exists
+  /auth/login:
+    post:
+      tags:
+        - authorization
+      summary: User registration
+      operationId: authorize
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                login:
+                  type: string
+                  example: username
+                password:
+                  type: string
+                  example: userpassword
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      token:
+                        type: string
+                        format: oauth-token
+                        example: Bearer {token}
+                  - type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/User'
+        '400':
+          description: Bad Request
+        '401':
+          description: Wrong credentials 
+  
+  /games:
+    post:
+      tags:
+        - games
+      summary: Create a new game
+      operationId: addGame
+      requestBody:
+        $ref: '#/components/requestBodies/CreateGame'
+      responses:
+        '201':
+          description: Resource created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameFull'
+    get:
+      tags:
+        - games
+      summary: Get all games
+      operationId: getAllGames
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GameInfo'
+  /games/{id}:
+    get:
+      tags:
+        - games
+      summary: Get game by ID
+      operationId: getGameById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameFull'
+        '400':
+          description: Bad Request
+        '404':
+          description: Game not found
+    put:
+      tags:
+        - games
+      summary: Update game by ID
+      operationId: updateGame
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        $ref: '#/components/requestBodies/CreateGame'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameFull'
+        '400':
+          description: Bad Request
+        '404':
+          description: Game not found
+  /games/{id}/publish:
+    post:
+      tags:
+        - games
+      summary: Publish a game
+      operationId: publishGame
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+        '404':
+          description: Game not found
+  /games/{id}/start:
+    post:
+      tags:
+        - games
+      summary: Start a game
+      operationId: startGame
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+        '404':
+          description: Game not found
+  
+  /games/{id}/events:
+    get:
+      tags:
+        - events
+      summary: Get events by game (polling)
+      operationId: getEventsByGame
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: after
+          in: query
+          required: true
+          description: request events after specific timestamp
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HappenedEvent'
+        '400':
+          description: Bad Request
+        '404':
+          description: Game not found
+  
+  /account:
+    get:
+      tags:
+        - account
+      summary: Get account data
+      operationId: getAccount
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+                schema:
+                  $ref: '#/components/schemas/Account'
+        '400':
+          description: Bad Request
+  
+  /account/balance:
+    get:
+      tags:
+        - account
+      summary: Get account balance
+      operationId: getBalance
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+                schema:
+                  $ref: '#/components/schemas/AccountBalance'
+        '400':
+          description: Bad Request
+  
+  /account/deposit:
+    post:
+      tags:
+        - account
+      summary: Deposit funds into account
+      operationId: deposit
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: number
+                  format: double
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+                schema:
+                  $ref: '#/components/schemas/AccountBalance'
+        '400':
+          description: Bad Request
+  
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 32b880b8-4ee1-4fa1-a0c6-639e4d72ba69
+        login:
+          type: string
+          example: username
+        firstName:
+          type: string
+          example: Иван
+        lastName:
+          type: string
+          example: Иванов
+        email:
+          type: string
+          format: email
+          example: user@email.com
+    
+    Manager:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 32b880b8-4ee1-4fa1-a0c6-639e4d72ba69
+        user:
+          $ref: '#/components/schemas/User'
+    
+    Account:
+      type: object
+      properties:
+        balance:
+          type: number
+          format: double
+    
+    AccountBalance:
+      type: object
+      properties:
+        balance:
+          type: number
+          format: double
+    
+    GameInfo:
+      description: Объект Game с основными полями 
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          example: 32b880b8-4ee1-4fa1-a0c6-639e4d72ba69
+        name:
+          type: string
+          example: 'Голодные игры #1'
+        arenaType:
+          type: string
+          example: Остров
+        arenaDescription:
+          type: string
+          example: Состоит из 12 секторов
+        dateStart:
+          type: string
+          format: date-time
+          example: 2023-07-21T17:32:28.000Z
+        dateEnd:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          example: 2023-07-21T17:32:28.000Z
+        status:
+          type: string
+          readOnly: true
+          enum:
+            - draft
+            - planned
+            - ongoing
+            - completed
+        description:
+          type: string
+        manager:
+          $ref: '#/components/schemas/Manager'
+        winner:
+          readOnly: true
+          nullable: true
+          allOf:
+           - $ref: '#/components/schemas/Player'
+    
+    GameFull:
+      description: GameInfo + список игроков + список событий
+      allOf:
+        - $ref: '#/components/schemas/GameInfo'
+        - type: object
+          properties:
+            players:
+              type: array
+              maxItems: 24
+              items:
+                $ref: '#/components/schemas/Player'
+            happenedEvents:
+              type: array
+              readOnly: true
+              items:
+                $ref: '#/components/schemas/HappenedEvent'
+    
+    Player:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 32b880b8-4ee1-4fa1-a0c6-639e4d72ba69
+        firstName:
+          type: string
+          example: Майкл
+        lastName:
+          type: string
+          example: Уарен
+        age:
+          type: integer
+          format: int32
+          example: 24
+        gender:
+          type: string
+          enum:
+            - male
+            - female
+        state:
+          type: string
+          enum:
+            - alive
+            - slight_injury
+            - moderate_injury
+            - severe_injury
+            - dead
+    
+    PlannedEvent:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 32b880b8-4ee1-4fa1-a0c6-639e4d72ba69
+        name:
+          type: string
+          example: Метеоритный дождь
+        description:
+          type: string
+          example: Множественное падение каменных обломков
+        dateStart:
+          type: string
+          format: date-time
+          example: 2023-07-21T17:32:28.000Z
+        isHappened:
+          type: boolean
+    
+    HappenedEvent:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 32b880b8-4ee1-4fa1-a0c6-639e4d72ba69
+        type:
+          type: string
+          enum:
+            - player_killed
+            - player_injured
+            - supply
+            - random
+            - other
+        eventObject:
+          type: object
+          oneOf:
+            - $ref: '#/components/schemas/PlayerKilledEvent'
+            - $ref: '#/components/schemas/PlayerInjuredEvent'
+            - $ref: '#/components/schemas/SupplyEvent'
+            - $ref: '#/components/schemas/RandomEvent'
+            - $ref: '#/components/schemas/OtherEvent'
+    
+    PlayerKilledEvent:
+      type: object
+      required:
+        - player
+      properties:
+        player:
+          $ref: '#/components/schemas/Player'
+    
+    PlayerInjuredEvent:
+      type: object
+      required:
+        - player
+        - degree
+      properties:
+        player:
+          $ref: '#/components/schemas/Player'
+        degree:
+          type: string
+          enum:
+            - slight_injury
+            - moderate_injury
+            - severe_injury
+    
+    SupplyEvent:
+      type: object
+      required:
+        - player
+        - item
+      properties:
+        player:
+          $ref: '#/components/schemas/Player'
+        item: {} # MOCK ITEM
+    
+    RandomEvent:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          example: Метеоритный дождь
+        plannedEventId:
+          type: string
+          format: uuid
+          example: 32b880b8-4ee1-4fa1-a0c6-639e4d72ba69
+    
+    OtherEvent:
+      type: object
+      required:
+        - text
+      properties:
+        player:
+          $ref: '#/components/schemas/Player'
+        text:
+          type: string
+          example: достиг Рога Изобилия
+
+  requestBodies:
+    CreateGame:
+      required: true
+      content:
+        application/json:
+          schema:
+            allOf: 
+              - $ref: '#/components/schemas/GameFull'
+              - type: object
+                properties:
+                  plannedEvents:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PlannedEvent'
+                  items:
+                    type: array
+                    items: {} # MOCK ITEM
