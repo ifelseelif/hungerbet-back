@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: BetHunger - OpenAPI 3.0
-  version: 0.0.1
+  version: 0.0.2
 externalDocs:
   description: GitHub Project
   url: https://github.com/ifelseelif/hungerbet-back
@@ -394,7 +394,9 @@ components:
         description:
           type: string
         manager:
-          $ref: '#/components/schemas/Manager'
+          readOnly: true
+          allOf:
+            - $ref: '#/components/schemas/Manager'
         winner:
           readOnly: true
           nullable: true
@@ -441,6 +443,7 @@ components:
             - male
             - female
         state:
+          readOnly: true
           type: string
           enum:
             - alive
@@ -455,6 +458,7 @@ components:
         id:
           type: string
           format: uuid
+          readOnly: true
           example: 32b880b8-4ee1-4fa1-a0c6-639e4d72ba69
         name:
           type: string
@@ -467,6 +471,7 @@ components:
           format: date-time
           example: 2023-07-21T17:32:28.000Z
         isHappened:
+          readOnly: true
           type: boolean
     
     HappenedEvent:
@@ -549,6 +554,14 @@ components:
         text:
           type: string
           example: достиг Рога Изобилия
+    
+    EntityId:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 32b880b8-4ee1-4fa1-a0c6-639e4d72ba69
 
   requestBodies:
     CreateGame:
@@ -557,13 +570,18 @@ components:
         application/json:
           schema:
             allOf: 
-              - $ref: '#/components/schemas/GameFull'
+              - $ref: '#/components/schemas/GameInfo'
               - type: object
                 properties:
+                  players:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/EntityId'
                   plannedEvents:
                     type: array
                     items:
                       $ref: '#/components/schemas/PlannedEvent'
                   items:
                     type: array
-                    items: {} # MOCK ITEM
+                    items: # MOCK ITEM
+                      $ref: '#/components/schemas/EntityId'
