@@ -1,16 +1,19 @@
 package com.hungerbet.hungerbet.service.implementaion;
 
-import com.hungerbet.hungerbet.entity.domain.Game;
-import com.hungerbet.hungerbet.entity.domain.GameStatus;
-import com.hungerbet.hungerbet.entity.domain.HappenedEvent;
-import com.hungerbet.hungerbet.entity.domain.HappenedEventType;
-import com.hungerbet.hungerbet.entity.exceptions.BadRequestException;
-import com.hungerbet.hungerbet.entity.exceptions.NotFoundException;
+import com.hungerbet.hungerbet.controllers.models.game.CreatePlannedEvents;
+import com.hungerbet.hungerbet.entity.domain.*;
+import com.hungerbet.hungerbet.entity.exceptions.HttpException;
 import com.hungerbet.hungerbet.repository.GameRepository;
 import com.hungerbet.hungerbet.repository.HappenedEventsRepository;
+import com.hungerbet.hungerbet.repository.ItemRepository;
+import com.hungerbet.hungerbet.repository.UserRepository;
 import com.hungerbet.hungerbet.service.GameService;
-import com.hungerbet.hungerbet.service.models.game.CreateGameModel;
+import com.hungerbet.hungerbet.service.PlayerService;
+import com.hungerbet.hungerbet.service.PlannedEventsService;
+import com.hungerbet.hungerbet.controllers.models.game.CreateGameModel;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -25,74 +28,97 @@ public class GameServiceImpl implements GameService {
     @Autowired
     private HappenedEventsRepository happenedEventsRepository;
 
-    @Override
-    public Game create(CreateGameModel createGameModel) {
-        Game game = new Game(createGameModel.getName(), GameStatus.DRAFT, createGameModel.getStartedAt(),
-                createGameModel.getArenInfo(), createGameModel.getDescription(), createGameModel.getArena());
-        gameRepository.save(game);
+    @Autowired
+    private PlannedEventsService plannedEventsService;
 
+    @Autowired
+    private PlayerService playerService;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Override
+    @Transactional
+    public Game create(String managerLogin, CreateGameModel createGameModel) throws HttpException {
+        User manager = userRepository.findByLogin(managerLogin).orElseThrow(() -> new HttpException("User not found", HttpStatus.NOT_FOUND));
+
+        Game game = new Game(createGameModel.getName(), GameStatus.DRAFT, createGameModel.getDateStart(), createGameModel.getArenaDescription(), createGameModel.getDescription(), createGameModel.getArenaType(), manager);
+        Game savedGame = gameRepository.save(game);
+
+        for (UUID playerId : createGameModel.getPlayers()) {
+            playerService.attach(savedGame, playerId);
+        }
+
+        for (CreatePlannedEvents createPlannedEvents : createGameModel.getPlannedEvents()) {
+            plannedEventsService.addPlannedEvent(savedGame, createPlannedEvents);
+        }
+
+        gameRepository.save(savedGame);
         return game;
     }
 
     @Override
-    public Game publishGame(UUID gameId) throws NotFoundException, BadRequestException {
-        Game game = gameRepository.findById(gameId).orElseThrow(() -> new NotFoundException("Game not found"));
+    public void publishGame(UUID gameId) throws HttpException {
+        Game game = gameRepository.findById(gameId).orElseThrow(() -> new HttpException("Game not found", HttpStatus.NOT_FOUND));
 
         game.publish();
         gameRepository.save(game);
+    }
+
+    @Override
+    public Game getGame(UUID gameId, boolean isManager) throws HttpException {
+        Game game = gameRepository.findById(gameId)
+                .orElseThrow(() -> new HttpException("Game not found", HttpStatus.NOT_FOUND));
+
+        if (game.getStatus() == GameStatus.DRAFT && !isManager) {
+            throw new HttpException("Game is in draft status", HttpStatus.FORBIDDEN);
+        }
 
         return game;
     }
 
     @Override
-    public Game getGame(UUID gameId) throws NotFoundException {
-        return gameRepository.findById(gameId).orElseThrow(() -> new NotFoundException("Game not found"));
+    public List<Game> getGames(boolean isManager) {
+        List<Game> games = gameRepository.findAll();
+
+        if (!isManager) {
+            return games.stream().filter(game -> game.getStatus() != GameStatus.DRAFT).toList();
+        }
+
+        return games;
     }
 
     @Override
-    public List<Game> getGames() {
-        return gameRepository.findAll();
-    }
-
-    @Override
-    public List<Game> getPublishedGames() {
-        List<GameStatus> gameStatuses = List.of(GameStatus.PLANNED, GameStatus.ONGOING);
-        return gameRepository.findPublishedGames(gameStatuses);
-    }
-
-    @Override
-    public Game startGame(UUID gameId) throws NotFoundException, BadRequestException {
-        Game game = gameRepository.findById(gameId).orElseThrow(() -> new NotFoundException("Game not found"));
+    public void startGame(UUID gameId) throws HttpException {
+        Game game = gameRepository.findById(gameId).orElseThrow(() -> new HttpException("Game not found", HttpStatus.NOT_FOUND));
 
         game.start();
 
-        Date currentDate = new Date();
-        HappenedEvent startGameEvent = new HappenedEvent("Игра началась", "", currentDate, HappenedEventType.OTHERS);
+        Date startDate = new Date();
+        HappenedEvent startGameEvent = new HappenedEvent(startDate, HappenedEventType.OTHER_EVENT, "{\"message\" : \"Игра началась\"}");
         happenedEventsRepository.save(startGameEvent);
         game.addHappenedEvent(startGameEvent);
 
         if (game.IsFinish()) {
-            HappenedEvent happenedEvent = new HappenedEvent("Игра закончилась", "", currentDate, HappenedEventType.OTHERS);
-            happenedEventsRepository.save(happenedEvent);
-            game.addHappenedEvent(happenedEvent);
+            Date endDate = new Date();
+            HappenedEvent endEvent = new HappenedEvent(endDate, HappenedEventType.OTHER_EVENT, "{\"message\" : \"Игра закончилась\"}");
+            happenedEventsRepository.save(endEvent);
+            game.addHappenedEvent(endEvent);
             game.Finish();
         }
 
         gameRepository.save(game);
-
-        return game;
     }
 
     @Override
-    public Game update(UUID gameId, CreateGameModel createGameRequest) throws NotFoundException {
-        Game game = gameRepository.findById(gameId).orElseThrow(() -> new NotFoundException("Game not found"));
-        game.setArenaInfo(createGameRequest.getArenInfo());
-        game.setStartDate(createGameRequest.getStartedAt());
-        game.setName(createGameRequest.getName());
-        game.setDescription(createGameRequest.getDescription());
-        game.setArena(createGameRequest.getArena());
-        gameRepository.save(game);
+    public List<HappenedEvent> getGameEvents(UUID gameId, boolean isManager) throws HttpException {
+        Game game = gameRepository.findById(gameId)
+                .orElseThrow(() -> new HttpException("Game not found", HttpStatus.NOT_FOUND));
 
-        return game;
+        if (game.getStatus() == GameStatus.DRAFT && !isManager) {
+            throw new HttpException("Game is in draft status", HttpStatus.FORBIDDEN);
+        }
+
+        return game.getHappenedEvents();
     }
 }

@@ -1,15 +1,18 @@
 package com.hungerbet.hungerbet.controllers;
 
 import com.hungerbet.hungerbet.controllers.models.auth.AuthRequest;
-import com.hungerbet.hungerbet.controllers.models.users.CreateUserRequest;
-import com.hungerbet.hungerbet.entity.exceptions.BadRequestException;
+import com.hungerbet.hungerbet.controllers.models.auth.TokenResponseModel;
+import com.hungerbet.hungerbet.controllers.models.auth.CreateUserRequest;
+import com.hungerbet.hungerbet.entity.domain.User;
+import com.hungerbet.hungerbet.entity.exceptions.HttpException;
+import com.hungerbet.hungerbet.repository.UserRepository;
 import com.hungerbet.hungerbet.service.implementaion.JwtService;
 import com.hungerbet.hungerbet.service.implementaion.UserInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -26,25 +29,25 @@ public class AuthController {
     private JwtService jwtService;
 
     @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
     private AuthenticationManager authenticationManager;
 
-    @GetMapping("/welcome")
-    public String welcome() {
-        return "Welcome this endpoint is not secure";
-    }
-
     @PostMapping("/register")
-    public UUID register(@RequestBody CreateUserRequest userInfo) throws BadRequestException {
+    public UUID register(@RequestBody CreateUserRequest userInfo) throws HttpException {
         return service.addUser(userInfo);
     }
 
-    @PostMapping("/generateToken")
-    public String authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
+    @PostMapping("/login")
+    public TokenResponseModel authenticateAndGetToken(@RequestBody AuthRequest authRequest) throws HttpException {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
         if (authentication.isAuthenticated()) {
-            return jwtService.generateToken(authRequest.getUsername());
+            String token = jwtService.generateToken(authRequest.getUsername());
+            User user = userRepository.findByLogin(authRequest.getUsername()).orElseThrow(() -> new HttpException("User not found", HttpStatus.BAD_REQUEST));
+            return new TokenResponseModel(token, user);
         } else {
-            throw new UsernameNotFoundException("invalid user request !");
+            throw new HttpException("Wrong credentials", HttpStatus.UNAUTHORIZED);
         }
     }
 }

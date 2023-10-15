@@ -1,7 +1,9 @@
 package com.hungerbet.hungerbet.entity.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -17,23 +19,22 @@ public class User {
     private UUID id;
 
     private String firstName;
-    private String secondName;
+    private String lastName;
 
+    private String email;
     private double balanceMoney;
 
-    @OneToOne(mappedBy = "user")
-    @JsonIgnore
-    private Manager manager;
+    private boolean isManager;
 
-    @JsonIgnore
     private String login;
 
-    public User(String firstName, String secondName, String login, String passwd, double balance) {
+    public User(String firstName, String lastName, String login, String passwd, String email) {
         this.firstName = firstName;
-        this.secondName = secondName;
+        this.lastName = lastName;
         this.login = login;
         this.password = passwd;
-        this.balanceMoney = balance;
+        this.email = email;
+        this.balanceMoney = 0;
     }
 
     public void addMoney(double amount) {

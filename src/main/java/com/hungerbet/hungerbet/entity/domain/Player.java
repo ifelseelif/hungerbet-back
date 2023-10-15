@@ -9,7 +9,7 @@ import java.util.UUID;
 @Entity
 @Data
 @NoArgsConstructor
-public class Participant {
+public class Player {
     @Id
     @GeneratedValue
     private UUID id;
@@ -17,19 +17,27 @@ public class Participant {
     private String firstName;
     private String lastName;
     private int age;
-    private int gender;
+    private String gender;
     @Enumerated(EnumType.STRING)
-    private ParticipantState state;
+    private PlayerState state;
 
-    public Participant(String firstName, String lastName, int age, int gender) {
+    public Player(String firstName, String lastName, int age, String gender) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.age = age;
         this.gender = gender;
-        state = ParticipantState.ALIVE;
+        state = PlayerState.ALIVE;
     }
 
     public boolean isAlive() {
-        return state != ParticipantState.DEAD;
+        return state != PlayerState.DEAD;
+    }
+
+    public void hurts() {
+        this.state = PlayerState.FLESH_WOUND;
+    }
+
+    public void killed() {
+        this.state = PlayerState.DEAD;
     }
 }

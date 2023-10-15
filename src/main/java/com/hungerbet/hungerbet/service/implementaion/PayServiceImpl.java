@@ -1,17 +1,14 @@
 package com.hungerbet.hungerbet.service.implementaion;
 
 import com.hungerbet.hungerbet.clients.BillingApiClient;
-import com.hungerbet.hungerbet.controllers.models.billing.ReplenishBalanceRequest;
 import com.hungerbet.hungerbet.entity.domain.User;
-import com.hungerbet.hungerbet.entity.exceptions.BadRequestException;
-import com.hungerbet.hungerbet.entity.exceptions.NotFoundException;
+import com.hungerbet.hungerbet.entity.exceptions.HttpException;
 import com.hungerbet.hungerbet.repository.UserRepository;
 import com.hungerbet.hungerbet.service.PayService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
-
-import java.util.Optional;
 
 @Service
 public class PayServiceImpl implements PayService {
@@ -23,32 +20,26 @@ public class PayServiceImpl implements PayService {
     private BillingApiClient billingApiClient;
 
     @Override
-    public void ChangeBalance(ReplenishBalanceRequest request) throws BadRequestException, NotFoundException {
-        if (request.getAmount() < 0) {
-            throw new BadRequestException("amount less than zero");
+    public double ChangeBalance(String login, double amount) throws HttpException {
+        if (amount < 0) {
+            throw new HttpException("amount less than zero", HttpStatus.BAD_REQUEST);
         }
 
-        Optional<User> userOptional = userRepository.findById(request.getUserId());
-
-        if (!userOptional.isPresent()) {
-            throw new NotFoundException("User not found");
-        }
+        User user = userRepository.findByLogin(login).orElseThrow(() -> new HttpException("User not found", HttpStatus.NOT_FOUND));
 
         try {
-            billingApiClient.debitingMoney(userOptional.get().getLogin(), request.getAmount());
+            billingApiClient.debitingMoney(login, amount);
         } catch (HttpClientErrorException e) {
             if (e.getStatusCode().value() == 400) {
-                throw new BadRequestException("Not enough money");
+                throw new HttpException("Not enough money", HttpStatus.BAD_REQUEST);
             }
-            throw new BadRequestException("Billing api not available, try late");
+            throw new HttpException("Billing api not available, try late", HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            throw new BadRequestException("Billing api not available, try late");
+            throw new HttpException("Billing api not available, try late", HttpStatus.BAD_REQUEST);
         }
 
-        User user = userOptional.get();
-        user.addMoney(request.getAmount());
+        user.addMoney(amount);
         userRepository.save(user);
-        System.out.println("ReplenishBalanceRequest success");
-
+        return user.getBalanceMoney();
     }
 }

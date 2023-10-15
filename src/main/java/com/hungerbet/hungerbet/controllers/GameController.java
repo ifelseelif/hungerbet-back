@@ -1,17 +1,22 @@
 package com.hungerbet.hungerbet.controllers;
 
-import com.hungerbet.hungerbet.controllers.models.game.ChangeGameStatusRequest;
+import com.hungerbet.hungerbet.controllers.models.events.EventResponse;
+import com.hungerbet.hungerbet.controllers.models.game.CreateGameModel;
+import com.hungerbet.hungerbet.controllers.models.game.GameResponse;
 import com.hungerbet.hungerbet.entity.domain.Game;
-import com.hungerbet.hungerbet.entity.exceptions.BadRequestException;
-import com.hungerbet.hungerbet.entity.exceptions.NotFoundException;
+import com.hungerbet.hungerbet.entity.domain.User;
+import com.hungerbet.hungerbet.entity.exceptions.HttpException;
+import com.hungerbet.hungerbet.repository.UserRepository;
 import com.hungerbet.hungerbet.service.GameService;
-import com.hungerbet.hungerbet.service.models.game.CreateGameModel;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,50 +29,52 @@ public class GameController {
     private final GameService gameService;
 
     @Autowired
-    public GameController(GameService gameService) {
+    private final UserRepository userRepository;
+
+    @Autowired
+    public GameController(GameService gameService, UserRepository userRepository) {
         this.gameService = gameService;
+        this.userRepository = userRepository;
     }
 
     @PostMapping
     @PreAuthorize("hasAuthority('Manager')")
-    public Game create(@RequestBody CreateGameModel createGameRequest) {
-        return gameService.create(createGameRequest);
-    }
+    public GameResponse create(@RequestBody CreateGameModel createGameRequest, Principal principal) throws HttpException {
+        Game game = gameService.create(principal.getName(), createGameRequest);
 
-    @PutMapping("/{gameId}")
-    @PreAuthorize("hasAuthority('Manager')")
-    public Game update(@PathVariable UUID gameId, @RequestBody CreateGameModel createGameRequest) throws NotFoundException {
-        return gameService.update(gameId, createGameRequest);
+        return new GameResponse(game);
     }
-
-    //TODO update game
 
     @PostMapping("/{gameId}/publish")
     @PreAuthorize("hasAuthority('Manager')")
-    public Game publishGame(@PathVariable UUID gameId) throws NotFoundException, BadRequestException {
-        return gameService.publishGame(gameId);
+    public void publishGame(@PathVariable UUID gameId) throws HttpException {
+        gameService.publishGame(gameId);
     }
 
     @PostMapping("/{gameId}/start")
     @PreAuthorize("hasAuthority('Manager')")
-    public Game sartGame(@PathVariable UUID gameId) throws NotFoundException, BadRequestException {
-        return gameService.startGame(gameId);
+    public void startGame(@PathVariable UUID gameId) throws HttpException {
+        gameService.startGame(gameId);
+    }
+
+    @GetMapping("/{gameId}/events")
+    public List<EventResponse> GetGameEvents(@PathVariable UUID gameId, Principal principal, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Date after) throws HttpException {
+        return gameService.getGameEvents(gameId, isManager(principal)).stream().filter(event -> event.getHappenedTime().after(after)).map(EventResponse::new).toList();
     }
 
     @GetMapping("/{gameId}")
-    @PreAuthorize("hasAuthority('Manager')")
-    public Game GetGame(@PathVariable UUID gameId) throws NotFoundException {
-        return gameService.getGame(gameId);
+    public GameResponse GetGame(@PathVariable UUID gameId, Principal principal) throws HttpException {
+        return new GameResponse(gameService.getGame(gameId, isManager(principal)));
     }
 
-    @GetMapping("/all")
-    @PreAuthorize("hasAuthority('Manager')")
-    public List<Game> GetGames() {
-        return gameService.getGames();
+    @GetMapping()
+    public List<GameResponse> GetGames(Principal principal) throws HttpException {
+        return gameService.getGames(isManager(principal)).stream().map(GameResponse::new).toList();
     }
 
-    @GetMapping("/all-published")
-    public List<Game> GetPublishedGames() {
-        return gameService.getPublishedGames();
+    private boolean isManager(Principal principal) throws HttpException {
+        String login = principal.getName();
+        User user = userRepository.findByLogin(login).orElseThrow(() -> new HttpException("User not found", HttpStatus.BAD_REQUEST));
+        return user.isManager();
     }
 }

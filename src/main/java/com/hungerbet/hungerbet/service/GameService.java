@@ -1,25 +1,22 @@
 package com.hungerbet.hungerbet.service;
 
 import com.hungerbet.hungerbet.entity.domain.Game;
-import com.hungerbet.hungerbet.entity.domain.GameStatus;
-import com.hungerbet.hungerbet.entity.exceptions.BadRequestException;
-import com.hungerbet.hungerbet.entity.exceptions.NotFoundException;
-import com.hungerbet.hungerbet.service.models.game.CreateGameModel;
+import com.hungerbet.hungerbet.entity.domain.HappenedEvent;
+import com.hungerbet.hungerbet.entity.exceptions.HttpException;
+import com.hungerbet.hungerbet.controllers.models.game.CreateGameModel;
 
 import java.util.List;
 import java.util.UUID;
 
 public interface GameService {
-    Game create(CreateGameModel game);
-    Game publishGame(UUID gameId) throws NotFoundException, BadRequestException;
+    Game create(String managerLogin, CreateGameModel game) throws HttpException;
+    void publishGame(UUID gameId) throws HttpException;
 
-    Game getGame(UUID gameId) throws NotFoundException;
+    Game getGame(UUID gameId, boolean isManager) throws HttpException;
 
-    List<Game> getGames();
+    List<Game> getGames(boolean isManager);
 
-    List<Game> getPublishedGames();
+    void startGame(UUID gameId) throws HttpException;
 
-    Game startGame(UUID gameId) throws NotFoundException, BadRequestException;
-
-    Game update(UUID gameId, CreateGameModel createGameRequest) throws NotFoundException;
+    List<HappenedEvent> getGameEvents(UUID gameId, boolean isManager) throws HttpException;
 }

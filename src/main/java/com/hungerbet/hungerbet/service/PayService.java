@@ -1,11 +1,8 @@
 package com.hungerbet.hungerbet.service;
 
-import com.hungerbet.hungerbet.controllers.models.billing.ReplenishBalanceRequest;
-import com.hungerbet.hungerbet.entity.exceptions.BadRequestException;
-import com.hungerbet.hungerbet.entity.exceptions.NotFoundException;
-import org.springframework.stereotype.Service;
+import com.hungerbet.hungerbet.entity.exceptions.HttpException;
 
 public interface PayService {
 
-    void ChangeBalance(ReplenishBalanceRequest request) throws BadRequestException, NotFoundException;
+    double ChangeBalance(String login, double amount) throws HttpException;
 }

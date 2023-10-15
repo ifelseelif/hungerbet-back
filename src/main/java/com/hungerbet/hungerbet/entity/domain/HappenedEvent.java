@@ -14,18 +14,15 @@ public class HappenedEvent {
     @Id
     @GeneratedValue
     private UUID id;
-    private UUID participantId;
-    private String name;
-    private String description;
     private Date happenedTime;
 
     @Enumerated(EnumType.STRING)
     private HappenedEventType happenedEventType;
+    private String body;
 
-    public HappenedEvent(String name, String description, Date happenedTime, HappenedEventType happenedEventType) {
-        this.name = name;
-        this.description = description;
+    public HappenedEvent(Date happenedTime, HappenedEventType happenedEventType, String body) {
         this.happenedTime = happenedTime;
         this.happenedEventType = happenedEventType;
+        this.body = body;
     }
 }

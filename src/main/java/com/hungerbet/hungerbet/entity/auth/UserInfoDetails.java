@@ -11,16 +11,16 @@ import java.util.List;
 
 public class UserInfoDetails implements UserDetails {
 
-    private String name;
-    private String password;
-    private List<GrantedAuthority> authorities;
+    private final String name;
+    private final String password;
+    private final List<GrantedAuthority> authorities;
 
     public UserInfoDetails(User user) {
         name = user.getLogin();
         password = user.getPassword();
         authorities = new ArrayList<>();
 
-        if(user.getManager() != null){
+        if (user.isManager()) {
             GrantedAuthority grantedAuthority = new SimpleGrantedAuthority("Manager");
             authorities.add(grantedAuthority);
         }

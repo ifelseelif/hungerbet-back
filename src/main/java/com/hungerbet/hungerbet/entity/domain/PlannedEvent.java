@@ -14,18 +14,17 @@ public class PlannedEvent {
     @Id
     @GeneratedValue
     private UUID id;
-    @Enumerated(EnumType.STRING)
-    private PlannedEventType type;
     private String name;
-    private Date scheduleTime;
+    private String description;
+    private Date dateStart;
     private UUID gameId;
     private boolean isHappened;
 
-    public PlannedEvent(UUID gameId, PlannedEventType type, String name, Date scheduleTime) {
+    public PlannedEvent(UUID gameId, String description, String name, Date dateStart) {
         this.gameId = gameId;
-        this.type = type;
         this.name = name;
-        this.scheduleTime = scheduleTime;
+        this.description = description;
+        this.dateStart = dateStart;
         this.isHappened = false;
     }
 }
