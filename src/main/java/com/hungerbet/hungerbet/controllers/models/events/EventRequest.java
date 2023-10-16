@@ -9,13 +9,8 @@ import java.util.UUID;
 @Data
 public class EventRequest {
     private UUID gameId;
-    private HappenedEventType happenedEventType;
+    private String happenedEventType;
     private Date happenedTime;
     private String body;
 
-    public EventRequest(UUID gameId, HappenedEventType happenedEventType, String body) {
-        this.gameId = gameId;
-        this.body = body;
-        this.happenedEventType = happenedEventType;
-    }
 }

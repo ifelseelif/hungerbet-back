@@ -1,5 +1,6 @@
 package com.hungerbet.hungerbet.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.hungerbet.hungerbet.controllers.models.events.EventRequest;
 import com.hungerbet.hungerbet.entity.domain.HappenedEvent;
 import com.hungerbet.hungerbet.entity.exceptions.HttpException;
@@ -20,7 +21,7 @@ public class GameEventController {
     private String apiToken;
 
     @PostMapping
-    public HappenedEvent addEvent(@RequestHeader String token, @RequestBody EventRequest event) throws HttpException {
+    public HappenedEvent addEvent(@RequestHeader String token, @RequestBody EventRequest event) throws HttpException, JsonProcessingException {
         if (token.equals(apiToken)) {
             return gameEventService.AddEvent(event);
         }

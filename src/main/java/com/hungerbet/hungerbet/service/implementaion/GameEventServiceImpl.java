@@ -3,15 +3,14 @@ package com.hungerbet.hungerbet.service.implementaion;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hungerbet.hungerbet.controllers.models.events.EventRequest;
-import com.hungerbet.hungerbet.entity.domain.Game;
-import com.hungerbet.hungerbet.entity.domain.HappenedEvent;
-import com.hungerbet.hungerbet.entity.domain.HappenedEventType;
-import com.hungerbet.hungerbet.entity.domain.Player;
+import com.hungerbet.hungerbet.entity.domain.*;
 import com.hungerbet.hungerbet.entity.domain.events.PlayerEvent;
+import com.hungerbet.hungerbet.entity.domain.events.RandomEvent;
 import com.hungerbet.hungerbet.entity.domain.events.SupplyEvent;
 import com.hungerbet.hungerbet.entity.exceptions.HttpException;
 import com.hungerbet.hungerbet.repository.GameRepository;
 import com.hungerbet.hungerbet.repository.HappenedEventsRepository;
+import com.hungerbet.hungerbet.repository.PlannedEventRepository;
 import com.hungerbet.hungerbet.repository.PlayerRepository;
 import com.hungerbet.hungerbet.service.GameEventService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,15 +28,18 @@ public class GameEventServiceImpl implements GameEventService {
     private PlayerRepository playerRepository;
 
     @Autowired
+    private PlannedEventRepository plannedEventRepository;
+
+    @Autowired
     private HappenedEventsRepository happenedEventsRepository;
 
     private final ObjectMapper mapper = new ObjectMapper();
 
     @Override
-    public HappenedEvent AddEvent(EventRequest request) throws HttpException {
+    public HappenedEvent AddEvent(EventRequest request) throws HttpException, JsonProcessingException {
         Game game = gameRepository.findById(request.getGameId()).orElseThrow(() -> new HttpException("Game not found", HttpStatus.NOT_FOUND));
 
-        HappenedEvent happenedEvent = new HappenedEvent(request.getHappenedTime(), request.getHappenedEventType(), request.getBody());
+        HappenedEvent happenedEvent = new HappenedEvent(request.getHappenedTime(), HappenedEventType.valueOf(request.getHappenedEventType()), request.getBody());
         happenedEventsRepository.save(happenedEvent);
 
         game.addHappenedEvent(happenedEvent);
@@ -73,6 +75,12 @@ public class GameEventServiceImpl implements GameEventService {
                 if (!game.getItems().stream().anyMatch(item -> item.getName().equals(itemName))) {
                     throw new HttpException("Item not allowed in this game", HttpStatus.BAD_REQUEST);
                 }
+            }
+            case RANDOM_EVENT -> {
+                RandomEvent randomEvent = mapper.readValue(request.getBody(), RandomEvent.class);
+                PlannedEvent plannedEvent = plannedEventRepository.findById(randomEvent.getId()).orElseThrow(() -> new HttpException("Not found", HttpStatus.NOT_FOUND));
+                plannedEvent.setHappened(true);
+                plannedEventRepository.save(plannedEvent);
             }
         }
 

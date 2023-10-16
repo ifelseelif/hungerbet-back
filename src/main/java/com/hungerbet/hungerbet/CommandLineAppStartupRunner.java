@@ -40,9 +40,19 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
             return adminUser;
         });
 
+        User service = userRepository.findByLogin("service").orElseGet(() -> {
+            User adminUser = new User("service", "service", "service", encoder.encode("service"), "service@email.ru");
+            adminUser.setManager(true);
+            userRepository.save(adminUser);
+            return adminUser;
+        });
+
         int randomNum = ThreadLocalRandom.current().nextInt(1, 100 + 1);
         Player player = new Player("Artur Clone " + randomNum, "Kuprtianov", 23, "male");
+        int randomNum2 = ThreadLocalRandom.current().nextInt(1, 100 + 1);
+        Player player2 = new Player("Artur Clone " + randomNum2, "Kuprtianov", 23, "male");
         participantRepository.save(player);
+        participantRepository.save(player2);
 
         if (gameRepository.findByName("Типа draft Голодные игры #75").isEmpty()) {
             Game game = new Game("Голодные игры DRAFT",
@@ -88,6 +98,7 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
                     admin);
             game.setWinner(player);
             game.attachPlayer(player);
+            game.attachPlayer(player2);
             gameRepository.save(game);
         }
 
