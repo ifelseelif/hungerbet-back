@@ -6,7 +6,7 @@ externalDocs:
   description: GitHub Project
   url: https://github.com/ifelseelif/hungerbet-back
 servers:
-  - url: https://localhost:8080
+  - url: http://localhost:8080
 tags:
   - name: authorization
   - name: games
