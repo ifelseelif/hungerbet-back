@@ -112,6 +112,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GameFull'
+      security:
+        - bearerAuth: []
     get:
       tags:
         - games
@@ -126,6 +128,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/GameInfo'
+      security:
+        - bearerAuth: []
   /games/{id}:
     get:
       tags:
@@ -150,6 +154,8 @@ paths:
           description: Bad Request
         '404':
           description: Game not found
+      security:
+        - bearerAuth: []
     put:
       tags:
         - games
@@ -175,6 +181,8 @@ paths:
           description: Bad Request
         '404':
           description: Game not found
+      security:
+        - bearerAuth: []
   /games/{id}/publish:
     post:
       tags:
@@ -195,6 +203,8 @@ paths:
           description: Bad Request
         '404':
           description: Game not found
+      security:
+        - bearerAuth: []
   /games/{id}/start:
     post:
       tags:
@@ -215,6 +225,8 @@ paths:
           description: Bad Request
         '404':
           description: Game not found
+      security:
+        - bearerAuth: []
   
   /games/{id}/events:
     get:
@@ -249,6 +261,8 @@ paths:
           description: Bad Request
         '404':
           description: Game not found
+      security:
+        - bearerAuth: []
   
   /account:
     get:
@@ -265,6 +279,8 @@ paths:
                   $ref: '#/components/schemas/Account'
         '400':
           description: Bad Request
+      security:
+        - bearerAuth: []
   
   /account/balance:
     get:
@@ -281,6 +297,8 @@ paths:
                   $ref: '#/components/schemas/AccountBalance'
         '400':
           description: Bad Request
+      security:
+        - bearerAuth: []
   
   /account/deposit:
     post:
@@ -307,6 +325,8 @@ paths:
                   $ref: '#/components/schemas/AccountBalance'
         '400':
           description: Bad Request
+      security:
+        - bearerAuth: []
   
 components:
   schemas:
@@ -581,3 +601,8 @@ components:
                     type: array
                     items: # MOCK ITEM
                       $ref: '#/components/schemas/EntityId'
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
