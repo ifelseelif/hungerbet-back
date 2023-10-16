@@ -41,10 +41,10 @@ public class AuthController {
 
     @PostMapping("/login")
     public TokenResponseModel authenticateAndGetToken(@RequestBody AuthRequest authRequest) throws HttpException {
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getLogin(), authRequest.getPassword()));
         if (authentication.isAuthenticated()) {
-            String token = jwtService.generateToken(authRequest.getUsername());
-            User user = userRepository.findByLogin(authRequest.getUsername()).orElseThrow(() -> new HttpException("User not found", HttpStatus.BAD_REQUEST));
+            String token = jwtService.generateToken(authRequest.getLogin());
+            User user = userRepository.findByLogin(authRequest.getLogin()).orElseThrow(() -> new HttpException("User not found", HttpStatus.BAD_REQUEST));
             return new TokenResponseModel(token, user);
         } else {
             throw new HttpException("Wrong credentials", HttpStatus.UNAUTHORIZED);
