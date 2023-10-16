@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: BetHunger - OpenAPI 3.0
-  version: 0.0.3
+  version: 0.0.4
 externalDocs:
   description: GitHub Project
   url: https://github.com/ifelseelif/hungerbet-back
@@ -24,23 +24,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                firstName:
-                  type: string
-                  example: Иван
-                lastName:
-                  type: string
-                  example: Иванов
-                login:
-                  type: string
-                  example: username
-                email:
-                  type: string
-                  format: email
-                password:
-                  type: string
-                  example: userpassword
+              $ref: '#/components/schemas/User'
       responses:
         '200':
           description: OK
@@ -336,6 +320,7 @@ components:
         id:
           type: string
           format: uuid
+          readOnly: true
           example: 32b880b8-4ee1-4fa1-a0c6-639e4d72ba69
         login:
           type: string
@@ -350,6 +335,10 @@ components:
           type: string
           format: email
           example: user@email.com
+        password:
+          writeOnly: true
+          type: string
+          example: userpassword
     
     Manager:
       type: object
@@ -578,7 +567,6 @@ components:
           type: string
           format: uuid
           example: 32b880b8-4ee1-4fa1-a0c6-639e4d72ba69
-
   requestBodies:
     CreateGame:
       required: true
@@ -606,3 +594,4 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+
