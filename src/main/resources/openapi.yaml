@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: BetHunger - OpenAPI 3.0
-  version: 0.0.4
+  version: 0.0.5
 externalDocs:
   description: GitHub Project
   url: https://github.com/ifelseelif/hungerbet-back
@@ -112,6 +112,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/GameInfo'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
       security:
         - bearerAuth: []
   /games/{id}:
@@ -136,6 +138,8 @@ paths:
                 $ref: '#/components/schemas/GameFull'
         '400':
           description: Bad Request
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
         '404':
           description: Game not found
       security:
@@ -163,6 +167,8 @@ paths:
                 $ref: '#/components/schemas/GameFull'
         '400':
           description: Bad Request
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
         '404':
           description: Game not found
       security:
@@ -185,6 +191,8 @@ paths:
           description: OK
         '400':
           description: Bad Request
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
         '404':
           description: Game not found
       security:
@@ -207,6 +215,8 @@ paths:
           description: OK
         '400':
           description: Bad Request
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
         '404':
           description: Game not found
       security:
@@ -243,6 +253,8 @@ paths:
                   $ref: '#/components/schemas/HappenedEvent'
         '400':
           description: Bad Request
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
         '404':
           description: Game not found
       security:
@@ -263,6 +275,8 @@ paths:
                   $ref: '#/components/schemas/Account'
         '400':
           description: Bad Request
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
       security:
         - bearerAuth: []
   
@@ -281,6 +295,8 @@ paths:
                   $ref: '#/components/schemas/AccountBalance'
         '400':
           description: Bad Request
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
       security:
         - bearerAuth: []
   
@@ -309,6 +325,8 @@ paths:
                   $ref: '#/components/schemas/AccountBalance'
         '400':
           description: Bad Request
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
       security:
         - bearerAuth: []
   
@@ -589,9 +607,11 @@ components:
                     type: array
                     items: # MOCK ITEM
                       $ref: '#/components/schemas/EntityId'
+  responses:
+    UnauthorizedError:
+      description: Access token is missing or invalid
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
-
