@@ -10,6 +10,7 @@ import com.hungerbet.hungerbet.repository.UserRepository;
 import com.hungerbet.hungerbet.service.GameService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -58,7 +59,10 @@ public class GameController {
     }
 
     @GetMapping("/{gameId}/events")
-    public List<EventResponse> GetGameEvents(@PathVariable UUID gameId, Principal principal, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Date after) throws HttpException {
+    public List<EventResponse> GetGameEvents(@PathVariable UUID gameId, Principal principal, @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Date after) throws HttpException {
+        if (after == null) {
+            return gameService.getGameEvents(gameId, isManager(principal)).stream().map(EventResponse::new).toList();
+        }
         return gameService.getGameEvents(gameId, isManager(principal)).stream().filter(event -> event.getHappenedTime().after(after)).map(EventResponse::new).toList();
     }
 

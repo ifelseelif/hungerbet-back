@@ -29,6 +29,7 @@ public class GameResponse {
     private PlayerResponse winner;
     private List<PlayerResponse> players;
     private List<PlannedEventResponse> plannedEvents;
+    private List<HappenedEventResponse> happenedEvents;
 
     public GameResponse(Game game) {
         this.id = game.getId();
@@ -52,6 +53,10 @@ public class GameResponse {
 
         if (game.getPlannedEvents() != null) {
             this.plannedEvents = game.getPlannedEvents().stream().map(PlannedEventResponse::new).toList();
+        }
+
+        if(game.getHappenedEvents() != null){
+            this.happenedEvents = game.getHappenedEvents().stream().map(HappenedEventResponse::new).toList();
         }
     }
 }

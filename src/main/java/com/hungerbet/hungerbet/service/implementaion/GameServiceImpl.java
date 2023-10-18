@@ -74,6 +74,10 @@ public class GameServiceImpl implements GameService {
             throw new HttpException("Game is in draft status", HttpStatus.FORBIDDEN);
         }
 
+        if (!isManager) {
+            game.setHappenedEvents(null);
+        }
+
         return game;
     }
 
@@ -82,6 +86,7 @@ public class GameServiceImpl implements GameService {
         List<Game> games = gameRepository.findAll();
 
         if (!isManager) {
+            games.forEach(game -> game.setHappenedEvents(null));
             return games.stream().filter(game -> game.getStatus() != GameStatus.DRAFT).toList();
         }
 
