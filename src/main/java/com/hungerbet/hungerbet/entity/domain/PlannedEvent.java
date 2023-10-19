@@ -27,4 +27,8 @@ public class PlannedEvent {
         this.dateStart = dateStart;
         this.isHappened = false;
     }
+
+    public PlannedEvent(String name) {
+        this.name = name;
+    }
 }

@@ -1,12 +1,11 @@
 package com.hungerbet.hungerbet.service.implementaion;
 
+import com.hungerbet.hungerbet.controllers.models.events.EventBodyResponse;
+import com.hungerbet.hungerbet.controllers.models.events.EventResponse;
 import com.hungerbet.hungerbet.controllers.models.game.CreatePlannedEvents;
 import com.hungerbet.hungerbet.entity.domain.*;
 import com.hungerbet.hungerbet.entity.exceptions.HttpException;
-import com.hungerbet.hungerbet.repository.GameRepository;
-import com.hungerbet.hungerbet.repository.HappenedEventsRepository;
-import com.hungerbet.hungerbet.repository.ItemRepository;
-import com.hungerbet.hungerbet.repository.UserRepository;
+import com.hungerbet.hungerbet.repository.*;
 import com.hungerbet.hungerbet.service.GameService;
 import com.hungerbet.hungerbet.service.PlayerService;
 import com.hungerbet.hungerbet.service.PlannedEventsService;
@@ -16,9 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class GameServiceImpl implements GameService {
@@ -37,12 +34,18 @@ public class GameServiceImpl implements GameService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private PlayerRepository playerRepository;
+
+    @Autowired
+    private PlannedEventRepository plannedEventRepository;
+
     @Override
     @Transactional
     public Game create(String managerLogin, CreateGameModel createGameModel) throws HttpException {
         User manager = userRepository.findByLogin(managerLogin).orElseThrow(() -> new HttpException("User not found", HttpStatus.NOT_FOUND));
 
-        Game game = new Game(createGameModel.getName(), GameStatus.DRAFT, createGameModel.getDateStart(), createGameModel.getArenaDescription(), createGameModel.getDescription(), createGameModel.getArenaType(), manager);
+        Game game = new Game(createGameModel.getName(), GameStatus.draft, createGameModel.getDateStart(), createGameModel.getArenaDescription(), createGameModel.getDescription(), createGameModel.getArenaType(), manager);
         Game savedGame = gameRepository.save(game);
 
         for (UUID playerId : createGameModel.getPlayers()) {
@@ -70,7 +73,7 @@ public class GameServiceImpl implements GameService {
         Game game = gameRepository.findById(gameId)
                 .orElseThrow(() -> new HttpException("Game not found", HttpStatus.NOT_FOUND));
 
-        if (game.getStatus() == GameStatus.DRAFT && !isManager) {
+        if (game.getStatus() == GameStatus.draft && !isManager) {
             throw new HttpException("Game is in draft status", HttpStatus.FORBIDDEN);
         }
 
@@ -86,8 +89,7 @@ public class GameServiceImpl implements GameService {
         List<Game> games = gameRepository.findAll();
 
         if (!isManager) {
-            games.forEach(game -> game.setHappenedEvents(null));
-            return games.stream().filter(game -> game.getStatus() != GameStatus.DRAFT).toList();
+            return games.stream().filter(game -> game.getStatus() != GameStatus.draft).toList();
         }
 
         return games;
@@ -100,13 +102,15 @@ public class GameServiceImpl implements GameService {
         game.start();
 
         Date startDate = new Date();
-        HappenedEvent startGameEvent = new HappenedEvent(startDate, HappenedEventType.OTHER_EVENT, "{\"message\" : \"Игра началась\"}");
+        EventBody startGameBody = EventBody.CreateOtherEvent(null, "Игра началась");
+        HappenedEvent startGameEvent = new HappenedEvent(startDate, HappenedEventType.other, startGameBody);
         happenedEventsRepository.save(startGameEvent);
         game.addHappenedEvent(startGameEvent);
 
         if (game.IsFinish()) {
             Date endDate = new Date();
-            HappenedEvent endEvent = new HappenedEvent(endDate, HappenedEventType.OTHER_EVENT, "{\"message\" : \"Игра закончилась\"}");
+            EventBody endGameBody = EventBody.CreateOtherEvent(null, "Игра закончилась");
+            HappenedEvent endEvent = new HappenedEvent(endDate, HappenedEventType.other, endGameBody);
             happenedEventsRepository.save(endEvent);
             game.addHappenedEvent(endEvent);
             game.Finish();
@@ -115,15 +119,32 @@ public class GameServiceImpl implements GameService {
         gameRepository.save(game);
     }
 
-    @Override
-    public List<HappenedEvent> getGameEvents(UUID gameId, boolean isManager) throws HttpException {
-        Game game = gameRepository.findById(gameId)
-                .orElseThrow(() -> new HttpException("Game not found", HttpStatus.NOT_FOUND));
 
-        if (game.getStatus() == GameStatus.DRAFT && !isManager) {
-            throw new HttpException("Game is in draft status", HttpStatus.FORBIDDEN);
+    public List<EventResponse> getHappenedEvents(UUID gameId, boolean isManager) throws HttpException {
+        Game game = gameRepository.findById(gameId).orElseThrow(() -> new HttpException("Game not found", HttpStatus.NOT_FOUND));
+
+        if (game.getStatus() == GameStatus.draft && !isManager) {
+            return new ArrayList<>();
         }
 
-        return game.getHappenedEvents();
+        return game.getHappenedEvents().stream().map(event -> {
+            switch (event.getHappenedEventType()) {
+                case other -> {
+                    return new EventResponse(event.getId(), event.getHappenedEventType(), EventBodyResponse.CreateOtherEvent(null, event.getBody().getText()), event.getHappenedTime());
+                }
+                case random -> {
+                    PlannedEvent plannedEvent = plannedEventRepository.findById(event.getBody().getPlannedEventId()).orElse(new PlannedEvent(""));
+                    return new EventResponse(event.getId(), event.getHappenedEventType(), EventBodyResponse.CreateRandomEvent(plannedEvent.getName()), event.getHappenedTime());
+                }
+                case player -> {
+                    Player player = playerRepository.findById(event.getBody().getPlayerId()).orElse(new Player());
+                    return new EventResponse(event.getId(), event.getHappenedEventType(), EventBodyResponse.CreatePlayerEvent(player, event.getBody().getPlayerState()), event.getHappenedTime());
+                }
+                default -> {
+                    System.out.println("Can't parse");
+                    return new EventResponse();
+                }
+            }
+        }).toList();
     }
 }

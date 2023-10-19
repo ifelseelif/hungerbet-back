@@ -10,7 +10,6 @@ import com.hungerbet.hungerbet.repository.UserRepository;
 import com.hungerbet.hungerbet.service.GameService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -43,7 +42,9 @@ public class GameController {
     public GameResponse create(@RequestBody CreateGameModel createGameRequest, Principal principal) throws HttpException {
         Game game = gameService.create(principal.getName(), createGameRequest);
 
-        return new GameResponse(game);
+        GameResponse gameResponse = new GameResponse(game);
+        gameResponse.setHappenedEvents(gameService.getHappenedEvents(game.getId(), true));
+        return gameResponse;
     }
 
     @PostMapping("/{gameId}/publish")
@@ -61,19 +62,33 @@ public class GameController {
     @GetMapping("/{gameId}/events")
     public List<EventResponse> GetGameEvents(@PathVariable UUID gameId, Principal principal, @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Date after) throws HttpException {
         if (after == null) {
-            return gameService.getGameEvents(gameId, isManager(principal)).stream().map(EventResponse::new).toList();
+            return gameService.getHappenedEvents(gameId, isManager(principal));
         }
-        return gameService.getGameEvents(gameId, isManager(principal)).stream().filter(event -> event.getHappenedTime().after(after)).map(EventResponse::new).toList();
+        return gameService.getHappenedEvents(gameId, isManager(principal)).stream().filter(event -> event.getHappenedTime().after(after)).toList();
     }
 
     @GetMapping("/{gameId}")
     public GameResponse GetGame(@PathVariable UUID gameId, Principal principal) throws HttpException {
-        return new GameResponse(gameService.getGame(gameId, isManager(principal)));
+        GameResponse gameResponse = new GameResponse(gameService.getGame(gameId, isManager(principal)));
+
+        if (isManager(principal)) {
+            gameResponse.setHappenedEvents(gameService.getHappenedEvents(gameId, true));
+        }
+
+        return gameResponse;
     }
 
     @GetMapping()
     public List<GameResponse> GetGames(Principal principal) throws HttpException {
-        return gameService.getGames(isManager(principal)).stream().map(GameResponse::new).toList();
+        List<GameResponse> gameResponses = gameService.getGames(isManager(principal)).stream().map(GameResponse::new).toList();
+
+        if (isManager(principal)) {
+            for (GameResponse gameResponse : gameResponses) {
+                gameResponse.setHappenedEvents(gameService.getHappenedEvents(gameResponse.getId(), true));
+            }
+        }
+
+        return gameResponses;
     }
 
     private boolean isManager(Principal principal) throws HttpException {

@@ -86,7 +86,7 @@ public class Game {
             throw new HttpException("Start of game in past", HttpStatus.BAD_REQUEST);
         }
 
-        this.status = GameStatus.PLANNED;
+        this.status = GameStatus.planned;
     }
 
     public void start() throws HttpException {
@@ -94,7 +94,7 @@ public class Game {
             throw new HttpException("List of participant is empty", HttpStatus.BAD_REQUEST);
         }
 
-        status = GameStatus.ONGOING;
+        status = GameStatus.ongoing;
 
         if (IsFinish()) {
             this.Finish();
@@ -104,7 +104,7 @@ public class Game {
     public boolean IsFinish() {
         return players
                 .stream()
-                .filter(participant -> !participant.isAlive())
+                .filter(participant -> !participant.isDead())
                 .toList()
                 .size() == 1;
     }
@@ -112,11 +112,11 @@ public class Game {
     public void Finish() throws HttpException {
         this.winner = players
                 .stream()
-                .filter(participant -> !participant.isAlive())
+                .filter(participant -> !participant.isDead())
                 .findFirst()
                 .orElseThrow(() -> new HttpException("Not found winner, no one alive", HttpStatus.BAD_REQUEST));
 
-        this.status = GameStatus.COMPLETED;
+        this.status = GameStatus.completed;
     }
 
     public void attachPlayer(Player newParticipant) throws HttpException {
@@ -128,7 +128,7 @@ public class Game {
     }
 
     public void addHappenedEvent(HappenedEvent happenedEvent) {
-        if (IsFinish() && happenedEvent.getHappenedEventType() != HappenedEventType.OTHER_EVENT) {
+        if (IsFinish() && happenedEvent.getHappenedEventType() != HappenedEventType.other) {
             return;
         }
 

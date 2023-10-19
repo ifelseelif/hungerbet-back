@@ -26,18 +26,14 @@ public class Player {
         this.lastName = lastName;
         this.age = age;
         this.gender = gender;
-        state = PlayerState.ALIVE;
+        state = PlayerState.alive;
     }
 
-    public boolean isAlive() {
-        return state != PlayerState.DEAD;
+    public boolean isDead() {
+        return state == PlayerState.dead;
     }
 
-    public void hurts() {
-        this.state = PlayerState.FLESH_WOUND;
-    }
-
-    public void killed() {
-        this.state = PlayerState.DEAD;
+    public void changeState(PlayerState newState) {
+        this.state = newState;
     }
 }

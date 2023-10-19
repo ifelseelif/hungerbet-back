@@ -7,6 +7,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -33,7 +35,24 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String username = null;
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);
-            username = jwtService.extractUsername(token);
+            try {
+                username = jwtService.extractUsername(token);
+            } catch (Exception e) {
+                if (!request.getServletPath().contains("/auth")) {
+                    response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                    response.getWriter().write("Access token is missing or invalid");
+                    response.flushBuffer();
+                    return;
+                }
+            }
+
+        } else {
+            if (!request.getServletPath().contains("/auth")) {
+                response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                response.getWriter().write("Access token is missing or invalid");
+                response.flushBuffer();
+                return;
+            }
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {

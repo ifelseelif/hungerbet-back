@@ -18,9 +18,11 @@ public class HappenedEvent {
 
     @Enumerated(EnumType.STRING)
     private HappenedEventType happenedEventType;
-    private String body;
 
-    public HappenedEvent(Date happenedTime, HappenedEventType happenedEventType, String body) {
+    @Embedded
+    private EventBody body;
+
+    public HappenedEvent(Date happenedTime, HappenedEventType happenedEventType, EventBody body) {
         this.happenedTime = happenedTime;
         this.happenedEventType = happenedEventType;
         this.body = body;

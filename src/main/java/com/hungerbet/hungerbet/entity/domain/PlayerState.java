@@ -1,5 +1,5 @@
 package com.hungerbet.hungerbet.entity.domain;
 
 public enum PlayerState {
-    ALIVE, FLESH_WOUND, DEAD
+    alive, slight_injury, moderate_injury, severe_injury, dead
 }

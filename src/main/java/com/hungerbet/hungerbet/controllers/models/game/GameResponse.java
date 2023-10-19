@@ -1,5 +1,6 @@
 package com.hungerbet.hungerbet.controllers.models.game;
 
+import com.hungerbet.hungerbet.controllers.models.events.EventResponse;
 import com.hungerbet.hungerbet.controllers.models.plannedEvents.PlannedEventResponse;
 import com.hungerbet.hungerbet.controllers.models.player.PlayerResponse;
 import com.hungerbet.hungerbet.controllers.models.users.UserResponseModel;
@@ -29,7 +30,7 @@ public class GameResponse {
     private PlayerResponse winner;
     private List<PlayerResponse> players;
     private List<PlannedEventResponse> plannedEvents;
-    private List<HappenedEventResponse> happenedEvents;
+    private List<EventResponse> happenedEvents;
 
     public GameResponse(Game game) {
         this.id = game.getId();
@@ -53,10 +54,6 @@ public class GameResponse {
 
         if (game.getPlannedEvents() != null) {
             this.plannedEvents = game.getPlannedEvents().stream().map(PlannedEventResponse::new).toList();
-        }
-
-        if(game.getHappenedEvents() != null){
-            this.happenedEvents = game.getHappenedEvents().stream().map(HappenedEventResponse::new).toList();
         }
     }
 }

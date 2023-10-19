@@ -52,7 +52,7 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
 
         if (gameRepository.findByName("Типа draft Голодные игры #75").isEmpty()) {
             Game game = new Game("Типа draft Голодные игры #75",
-                    GameStatus.DRAFT,
+                    GameStatus.draft,
                     new Date(2145, Calendar.JULY, 23),
                     "Состоит из 12 секторов, в каждом из которых по очереди активируется определенное опасное явление. Рог Изобилия находится посередине и представляет собой остров, окруженный соленой водой.",
                     "",
@@ -64,7 +64,7 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
 
         if (gameRepository.findByName("Голодные игры #75 ready for PLANNED").isEmpty()) {
             Game game = new Game("Голодные игры #75 ready for PLANNED",
-                    GameStatus.DRAFT,
+                    GameStatus.draft,
                     new Date(2145, Calendar.JULY, 23),
                     "Состоит из 12 секторов, в каждом из которых по очереди активируется определенное опасное явление. Рог Изобилия находится посередине и представляет собой остров, окруженный соленой водой.",
                     "Квартальная бойня. Все участники являются победителями прошлых игр. Единственный источник воды - стволы деревьев, растущие в лесу.",
@@ -76,7 +76,7 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
 
         if (gameRepository.findByName("Голодные игры #75 ready for ONGOING").isEmpty()) {
             Game game = new Game("Голодные игры #75 ready for ONGOING",
-                    GameStatus.PLANNED,
+                    GameStatus.planned,
                     new Date(2145, Calendar.JULY, 23),
                     "Состоит из 12 секторов, в каждом из которых по очереди активируется определенное опасное явление. Рог Изобилия находится посередине и представляет собой остров, окруженный соленой водой.",
                     "Квартальная бойня. Все участники являются победителями прошлых игр. Единственный источник воды - стволы деревьев, растущие в лесу.",
@@ -109,7 +109,7 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
 
         if (gameRepository.findByName("Голодные игры #73 ONGOING").isEmpty()) {
             Game game = new Game("Голодные игры #73 ONGOING",
-                    GameStatus.ONGOING,
+                    GameStatus.ongoing,
                     new Date(2145, Calendar.JULY, 23),
                     "Состоит из 12 секторов, в каждом из которых по очереди активируется определенное опасное явление. Рог Изобилия находится посередине и представляет собой остров, окруженный соленой водой.",
                     "Квартальная бойня. Все участники являются победителями прошлых игр. Единственный источник воды - стволы деревьев, растущие в лесу.",
@@ -140,13 +140,13 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
             long timeInSecs = date.getTimeInMillis();
             Date afterAdding2Mins = new Date(timeInSecs + (2 * 60 * 1000));
             Date afterAdding5Mins = new Date(timeInSecs + (5 * 60 * 1000));
-            plannedEventRepository.save(new PlannedEvent(game.getId(), "Армагедон", "Большой бум", afterAdding2Mins));
-            plannedEventRepository.save(new PlannedEvent(game.getId(), "Водопад", "Много воды", afterAdding5Mins));
+            plannedEventRepository.save(new PlannedEvent(game.getId(), "Водопад", "Водопад", afterAdding2Mins));
+            plannedEventRepository.save(new PlannedEvent(game.getId(), "Армагедон", "Метеоритный дождь", afterAdding5Mins));
         }
 
         if (gameRepository.findByName("Голодные игры #72").isEmpty()) {
             Game game = new Game("Голодные игры #72",
-                    GameStatus.COMPLETED,
+                    GameStatus.completed,
                     new Date(2145, Calendar.JULY, 23),
                     "Состоит из 12 секторов, в каждом из которых по очереди активируется определенное опасное явление. Рог Изобилия находится посередине и представляет собой остров, окруженный соленой водой.",
                     "Квартальная бойня. Все участники являются победителями прошлых игр. Единственный источник воды - стволы деревьев, растущие в лесу.",
