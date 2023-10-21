@@ -103,6 +103,27 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
         }
 
         //Planned с игроками
+        if (gameRepository.findByName("Голодные игры #10").isEmpty()) {
+            Game game = new Game("Голодные игры #10",
+                    GameStatus.planned,
+                    new Date(2145, Calendar.JULY, 23),
+                    "Состоит из 12 секторов, в каждом из которых по очереди активируется определенное опасное явление. Рог Изобилия находится посередине и представляет собой остров, окруженный соленой водой.",
+                    "Квартальная бойня. Все участники являются победителями прошлых игр. Единственный источник воды - стволы деревьев, растущие в лесу.",
+                    "Разрушенный город",
+                    admin);
+
+            AddPlayersInGame(game, 12);
+
+            gameRepository.save(game);
+            Calendar date = Calendar.getInstance();
+            long timeInSecs = date.getTimeInMillis();
+            Date afterAdding2Mins = new Date(timeInSecs + (2 * 60 * 1000));
+            Date afterAdding5Mins = new Date(timeInSecs + (5 * 60 * 1000));
+            plannedEventRepository.save(new PlannedEvent(game.getId(), "Водопад", "Водопад", afterAdding2Mins));
+            plannedEventRepository.save(new PlannedEvent(game.getId(), "Армагедон", "Метеоритный дождь", afterAdding5Mins));
+        }
+
+        //Planned с игроками
         if (gameRepository.findByName("Голодные игры #6").isEmpty()) {
             Game game = new Game("Голодные игры #6",
                     GameStatus.planned,

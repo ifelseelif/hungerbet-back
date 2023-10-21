@@ -64,7 +64,7 @@ public class GameController {
         if (after == null) {
             return gameService.getHappenedEvents(gameId, isManager(principal));
         }
-        return gameService.getHappenedEvents(gameId, isManager(principal)).stream().filter(event -> event.getHappenedTime().after(after)).toList();
+        return gameService.getHappenedEvents(gameId, isManager(principal)).stream().filter(event -> event.getTime().after(after)).toList();
     }
 
     @GetMapping("/{gameId}")

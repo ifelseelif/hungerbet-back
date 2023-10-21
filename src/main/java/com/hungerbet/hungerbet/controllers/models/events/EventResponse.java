@@ -13,12 +13,12 @@ public class EventResponse {
     private UUID id;
     private String type;
     private EventBodyResponse body;
-    private Date happenedTime;
+    private Date time;
 
     public EventResponse(UUID id, HappenedEventType happenedEventType, EventBodyResponse eventBodyResponse, Date happenedTime) {
         this.id = id;
         this.type = happenedEventType.toString();
         this.body = eventBodyResponse;
-        this.happenedTime = happenedTime;
+        this.time = happenedTime;
     }
 }

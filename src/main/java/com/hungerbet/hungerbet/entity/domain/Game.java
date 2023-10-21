@@ -90,8 +90,8 @@ public class Game {
     }
 
     public void start() throws HttpException {
-        if (players.isEmpty()) {
-            throw new HttpException("List of participant is empty", HttpStatus.BAD_REQUEST);
+        if (players.stream().count() == 24) {
+            throw new HttpException("Count of participant is not 24", HttpStatus.BAD_REQUEST);
         }
 
         status = GameStatus.ongoing;
