@@ -4,6 +4,7 @@ import com.hungerbet.hungerbet.controllers.models.events.EventResponse;
 import com.hungerbet.hungerbet.controllers.models.game.CreateGameModel;
 import com.hungerbet.hungerbet.controllers.models.game.GameResponse;
 import com.hungerbet.hungerbet.entity.domain.Game;
+import com.hungerbet.hungerbet.entity.domain.Role;
 import com.hungerbet.hungerbet.entity.domain.User;
 import com.hungerbet.hungerbet.entity.exceptions.HttpException;
 import com.hungerbet.hungerbet.repository.UserRepository;
@@ -94,6 +95,6 @@ public class GameController {
     private boolean isManager(Principal principal) throws HttpException {
         String login = principal.getName();
         User user = userRepository.findByLogin(login).orElseThrow(() -> new HttpException("User not found", HttpStatus.BAD_REQUEST));
-        return user.isManager();
+        return user.getRole() == Role.admin;
     }
 }

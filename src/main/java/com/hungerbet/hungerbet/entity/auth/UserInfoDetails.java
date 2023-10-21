@@ -1,5 +1,6 @@
 package com.hungerbet.hungerbet.entity.auth;
 
+import com.hungerbet.hungerbet.entity.domain.Role;
 import com.hungerbet.hungerbet.entity.domain.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -20,7 +21,7 @@ public class UserInfoDetails implements UserDetails {
         password = user.getPassword();
         authorities = new ArrayList<>();
 
-        if (user.isManager()) {
+        if (user.getRole() == Role.admin) {
             GrantedAuthority grantedAuthority = new SimpleGrantedAuthority("Manager");
             authorities.add(grantedAuthority);
         }

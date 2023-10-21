@@ -36,14 +36,14 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
     public void run(String... args) throws Exception {
         User admin = userRepository.findByLogin("admin").orElseGet(() -> {
             User adminUser = new User("Плутарх", "Хэвенсби", "admin", encoder.encode("admin"), "admin@email.ru");
-            adminUser.setManager(true);
+            adminUser.setRole(Role.admin);
             userRepository.save(adminUser);
             return adminUser;
         });
 
         User service = userRepository.findByLogin("service").orElseGet(() -> {
             User adminUser = new User("service", "service", "service", encoder.encode("service"), "service@email.ru");
-            adminUser.setManager(true);
+            adminUser.setRole(Role.admin);
             userRepository.save(adminUser);
             return adminUser;
         });
@@ -157,8 +157,6 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
 
             AddPlayersInGame(game, 24);
 
-            gameRepository.save(game);
-
             Calendar date = Calendar.getInstance();
             long timeInSecs = date.getTimeInMillis();
 
@@ -171,11 +169,17 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
 
             Date before4Mins = new Date(timeInSecs - (4 * 60 * 1000));
             PlannedEvent plannedEvent = new PlannedEvent(game.getId(), "Водопад", "Водопад", before4Mins);
-
-            AddPlannedThatHappened(game, plannedEvent);
+            plannedEvent.setHappened(true);
+            plannedEventRepository.save(plannedEvent);
 
             Date afterAdding5Mins = new Date(timeInSecs + (5 * 60 * 1000));
-            plannedEventRepository.save(new PlannedEvent(game.getId(), "Армагедон", "Метеоритный дождь", afterAdding5Mins));
+            PlannedEvent anotherPlannedEvent = new PlannedEvent(game.getId(), "Армагедон", "Метеоритный дождь", afterAdding5Mins);
+            plannedEventRepository.save(anotherPlannedEvent);
+
+            game.setPlannedEvents(List.of(plannedEvent, anotherPlannedEvent));
+            AddPlannedForHappened(game, plannedEvent);
+
+            gameRepository.save(game);
         }
 
         //Ongoing с игроками game 2
@@ -189,7 +193,6 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
                     admin);
 
             AddPlayersInGame(game, 24);
-            gameRepository.save(game);
 
             Calendar date = Calendar.getInstance();
             long timeInSecs = date.getTimeInMillis();
@@ -203,11 +206,17 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
 
             Date before4Mins = new Date(timeInSecs - (10 * 60 * 1000));
             PlannedEvent plannedEvent = new PlannedEvent(game.getId(), "Армагедон", "Метеоритный дождь", before4Mins);
-
-            AddPlannedThatHappened(game, plannedEvent);
+            plannedEvent.setHappened(true);
+            plannedEventRepository.save(plannedEvent);
 
             Date afterAdding5Mins = new Date(timeInSecs + (2 * 60 * 1000));
-            plannedEventRepository.save(new PlannedEvent(game.getId(), "Доджь из токсинов", "Токсичный доджь", afterAdding5Mins));
+            PlannedEvent anotherPlannedEvent = new PlannedEvent(game.getId(), "Доджь из токсинов", "Токсичный доджь", afterAdding5Mins);
+            plannedEventRepository.save(anotherPlannedEvent);
+
+            game.setPlannedEvents(List.of(plannedEvent, anotherPlannedEvent));
+            AddPlannedForHappened(game, plannedEvent);
+
+            gameRepository.save(game);
         }
 
         //Finish с игроками game 2
@@ -221,7 +230,6 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
                     admin);
 
             AddPlayersInGame(game, 24);
-            gameRepository.save(game);
 
             Calendar date = Calendar.getInstance();
             long timeInSecs = date.getTimeInMillis();
@@ -235,16 +243,19 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
 
             Player winner = game.getPlayers().stream().filter(player -> !player.isDead()).findFirst().orElseThrow(() -> new RuntimeException("ERROR WINNER NOT ONLY ONE"));
             game.setWinner(winner);
-            gameRepository.save(game);
 
             Date before6Mins = new Date(timeInSecs - (6 * 60 * 1000));
             PlannedEvent plannedEvent = new PlannedEvent(game.getId(), "Доджь из токсинов", "Токсичный доджь", before6Mins);
+            plannedEvent.setHappened(true);
+            plannedEventRepository.save(plannedEvent);
 
-            AddPlannedThatHappened(game, plannedEvent);
+            game.addPlannedEvent(plannedEvent);
+            AddPlannedForHappened(game, plannedEvent);
 
             Date endDate = new Date(timeInSecs - (5 * 60 * 1000));
             HappenedEvent happenedEventEndGame = new HappenedEvent(endDate, HappenedEventType.other, EventBody.CreateOtherEvent(null, "Игра закончилась"));
             happenedEventsRepository.save(happenedEventEndGame);
+
             game.addHappenedEvent(happenedEventEndGame);
         }
 
@@ -273,17 +284,20 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
 
             Player winner = game.getPlayers().stream().filter(player -> !player.isDead()).findFirst().orElseThrow(() -> new RuntimeException("ERROR WINNER NOT ONLY ONE"));
             game.setWinner(winner);
-            gameRepository.save(game);
 
             Date before6Mins = new Date(timeInSecs - (15 * 60 * 1000));
             PlannedEvent plannedEvent = new PlannedEvent(game.getId(), "Огеннные камни с неба", "Армагедон", before6Mins);
+            plannedEvent.setHappened(true);
+            plannedEventRepository.save(plannedEvent);
 
-            AddPlannedThatHappened(game, plannedEvent);
+            game.addPlannedEvent(plannedEvent);
+            AddPlannedForHappened(game, plannedEvent);
 
             Date endDate = new Date(timeInSecs - (10 * 60 * 1000));
             HappenedEvent happenedEventEndGame = new HappenedEvent(endDate, HappenedEventType.other, EventBody.CreateOtherEvent(null, "Игра закончилась"));
             happenedEventsRepository.save(happenedEventEndGame);
             game.addHappenedEvent(happenedEventEndGame);
+            gameRepository.save(game);
         }
     }
 
@@ -351,13 +365,10 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
         });
     }
 
-    private void AddPlannedThatHappened(Game game, PlannedEvent plannedEvent) {
-        plannedEvent.setHappened(true);
-        plannedEventRepository.save(plannedEvent);
+    private void AddPlannedForHappened(Game game, PlannedEvent plannedEvent) {
         HappenedEvent happenedEventForPlanned = new HappenedEvent(plannedEvent.getDateStart(), HappenedEventType.random, EventBody.CreatePlannedEvent(plannedEvent.getId()));
         happenedEventsRepository.save(happenedEventForPlanned);
         game.addHappenedEvent(happenedEventForPlanned);
-        gameRepository.save(game);
     }
 
     private int i;
