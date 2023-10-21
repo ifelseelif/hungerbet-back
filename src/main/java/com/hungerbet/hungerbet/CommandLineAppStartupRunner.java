@@ -303,7 +303,7 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
             playerList.add(player);
         }
 
-        for (int i = 0; i < 24; i++) {
+        for (int i = 0; i < count; i++) {
             game.attachPlayer(playerList.get(i));
         }
     }
@@ -357,6 +357,7 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
         HappenedEvent happenedEventForPlanned = new HappenedEvent(plannedEvent.getDateStart(), HappenedEventType.random, EventBody.CreatePlannedEvent(plannedEvent.getId()));
         happenedEventsRepository.save(happenedEventForPlanned);
         game.addHappenedEvent(happenedEventForPlanned);
+        gameRepository.save(game);
     }
 
     private int i;
