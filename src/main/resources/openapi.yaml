@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: BetHunger - OpenAPI 3.0
-  version: 0.0.5
+  version: 0.0.6
 externalDocs:
   description: GitHub Project
   url: https://github.com/ifelseelif/hungerbet-back
@@ -340,6 +340,12 @@ components:
           format: uuid
           readOnly: true
           example: 32b880b8-4ee1-4fa1-a0c6-639e4d72ba69
+        role:
+          type: string
+          readOnly: true
+          enum:
+            - user
+            - manager
         login:
           type: string
           example: username
@@ -359,14 +365,14 @@ components:
           example: userpassword
     
     Manager:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          example: 32b880b8-4ee1-4fa1-a0c6-639e4d72ba69
-        user:
-          $ref: '#/components/schemas/User'
+      allOf:
+        - $ref: '#/components/schemas/User'
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+              example: 32b880b8-4ee1-4fa1-a0c6-639e4d72ba68
     
     Account:
       type: object
@@ -508,6 +514,10 @@ components:
           type: string
           format: uuid
           example: 32b880b8-4ee1-4fa1-a0c6-639e4d72ba69
+        time:
+          type: string
+          format: date-time
+          example: 2023-07-21T17:32:28.000Z
         type:
           type: string
           enum:
@@ -516,7 +526,7 @@ components:
             - supply
             - random
             - other
-        eventObject:
+        body:
           type: object
           oneOf:
             - $ref: '#/components/schemas/PlayerKilledEvent'
@@ -591,7 +601,7 @@ components:
       content:
         application/json:
           schema:
-            allOf: 
+            allOf:
               - $ref: '#/components/schemas/GameInfo'
               - type: object
                 properties:
