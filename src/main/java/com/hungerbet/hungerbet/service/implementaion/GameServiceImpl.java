@@ -3,6 +3,7 @@ package com.hungerbet.hungerbet.service.implementaion;
 import com.hungerbet.hungerbet.controllers.models.events.EventBodyResponse;
 import com.hungerbet.hungerbet.controllers.models.events.EventResponse;
 import com.hungerbet.hungerbet.controllers.models.game.CreatePlannedEvents;
+import com.hungerbet.hungerbet.controllers.models.game.GameResponse;
 import com.hungerbet.hungerbet.entity.domain.*;
 import com.hungerbet.hungerbet.entity.exceptions.HttpException;
 import com.hungerbet.hungerbet.repository.*;
@@ -61,11 +62,12 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public void publishGame(UUID gameId) throws HttpException {
+    public GameResponse publishGame(UUID gameId) throws HttpException {
         Game game = gameRepository.findById(gameId).orElseThrow(() -> new HttpException("Game not found", HttpStatus.NOT_FOUND));
 
         game.publish();
         gameRepository.save(game);
+        return new GameResponse(game);
     }
 
     @Override
@@ -96,7 +98,7 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public void startGame(UUID gameId) throws HttpException {
+    public GameResponse startGame(UUID gameId) throws HttpException {
         Game game = gameRepository.findById(gameId).orElseThrow(() -> new HttpException("Game not found", HttpStatus.NOT_FOUND));
 
         game.start();
@@ -117,6 +119,7 @@ public class GameServiceImpl implements GameService {
         }
 
         gameRepository.save(game);
+        return new GameResponse(game);
     }
 
 

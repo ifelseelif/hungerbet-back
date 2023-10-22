@@ -15,13 +15,15 @@ public class PlayerResponse {
     private int age;
     private String gender;
     private String state;
+    private int district;
 
-    public PlayerResponse(Player player){
+    public PlayerResponse(Player player) {
         this.id = player.getId();
         this.firstName = player.getFirstName();
         this.lastName = player.getLastName();
         this.age = player.getAge();
         this.gender = player.getGender();
         this.state = player.getState().toString();
+        this.district = player.district;
     }
 }

@@ -10,6 +10,7 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 public class Player {
+    public int district;
     @Id
     @GeneratedValue
     private UUID id;
@@ -21,12 +22,13 @@ public class Player {
     @Enumerated(EnumType.STRING)
     private PlayerState state;
 
-    public Player(String firstName, String lastName, int age, String gender) {
+    public Player(String firstName, String lastName, int age, String gender, int district) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.age = age;
         this.gender = gender;
         state = PlayerState.alive;
+        this.district = district;
     }
 
     public boolean isDead() {

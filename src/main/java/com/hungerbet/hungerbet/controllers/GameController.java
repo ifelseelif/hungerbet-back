@@ -50,14 +50,14 @@ public class GameController {
 
     @PostMapping("/{gameId}/publish")
     @PreAuthorize("hasAuthority('Manager')")
-    public void publishGame(@PathVariable UUID gameId) throws HttpException {
-        gameService.publishGame(gameId);
+    public GameResponse publishGame(@PathVariable UUID gameId) throws HttpException {
+        return gameService.publishGame(gameId);
     }
 
     @PostMapping("/{gameId}/start")
     @PreAuthorize("hasAuthority('Manager')")
-    public void startGame(@PathVariable UUID gameId) throws HttpException {
-        gameService.startGame(gameId);
+    public GameResponse startGame(@PathVariable UUID gameId) throws HttpException {
+        return gameService.startGame(gameId);
     }
 
     @GetMapping("/{gameId}/events")
