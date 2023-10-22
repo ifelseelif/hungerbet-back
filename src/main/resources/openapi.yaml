@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: BetHunger - OpenAPI 3.0
-  version: 0.0.7
+  version: 0.0.8
 externalDocs:
   description: GitHub Project
   url: https://github.com/ifelseelif/hungerbet-back
@@ -189,6 +189,10 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameFull'
         '400':
           description: Bad Request
         '401':
@@ -213,6 +217,10 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameFull'
         '400':
           description: Bad Request
         '401':
