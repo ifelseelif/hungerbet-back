@@ -25,7 +25,7 @@ public class PlayerServiceImpl implements PlayerService {
 
     @Override
     public Player addParticipant(CreatePlayerRequest request) {
-        Player newParticipant = new Player(request.getFirstName(), request.getLastName(), request.getAge(), request.getGender());
+        Player newParticipant = new Player(request.getFirstName(), request.getLastName(), request.getAge(), request.getGender(), request.getDistrict());
         playerRepository.save(newParticipant);
 
         return newParticipant;

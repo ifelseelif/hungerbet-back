@@ -8,4 +8,5 @@ public class CreatePlayerRequest {
     private String lastName;
     private int age;
     private String gender;
+    private int district;
 }
