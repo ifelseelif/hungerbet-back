@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: BetHunger - OpenAPI 3.0
-  version: 0.0.6
+  version: 0.0.7
 externalDocs:
   description: GitHub Project
   url: https://github.com/ifelseelif/hungerbet-back
@@ -470,6 +470,10 @@ components:
           type: integer
           format: int32
           example: 24
+        district:
+          type: integer
+          format: int32
+          example: 5
         gender:
           type: string
           enum:
