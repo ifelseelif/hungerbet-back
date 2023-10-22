@@ -128,23 +128,36 @@ public class GameServiceImpl implements GameService {
         }
 
         return game.getHappenedEvents().stream().map(event -> {
-            switch (event.getHappenedEventType()) {
-                case other -> {
-                    return new EventResponse(event.getId(), event.getHappenedEventType(), EventBodyResponse.CreateOtherEvent(null, event.getBody().getText()), event.getHappenedTime());
-                }
-                case random -> {
-                    PlannedEvent plannedEvent = plannedEventRepository.findById(event.getBody().getPlannedEventId()).orElse(new PlannedEvent(""));
-                    return new EventResponse(event.getId(), event.getHappenedEventType(), EventBodyResponse.CreateRandomEvent(plannedEvent.getName()), event.getHappenedTime());
-                }
-                case player -> {
-                    Player player = playerRepository.findById(event.getBody().getPlayerId()).orElse(new Player());
-                    return new EventResponse(event.getId(), event.getHappenedEventType(), EventBodyResponse.CreatePlayerEvent(player, event.getBody().getPlayerState()), event.getHappenedTime());
-                }
-                default -> {
-                    System.out.println("Can't parse");
-                    return new EventResponse();
-                }
-            }
-        }).toList();
+                    switch (event.getHappenedEventType()) {
+                        case other -> {
+                            if (event.getBody().getPlayerId() != null) {
+                                Player player = playerRepository.findById(event.getBody().getPlayerId()).orElse(new Player());
+                                return new EventResponse(event.getId(), event.getHappenedEventType(), EventBodyResponse.CreateOtherEvent(player, event.getBody().getText()), event.getHappenedTime());
+                            }
+                            return new EventResponse(event.getId(), event.getHappenedEventType(), EventBodyResponse.CreateOtherEvent(null, event.getBody().getText()), event.getHappenedTime());
+                        }
+                        case random -> {
+                            PlannedEvent plannedEvent = plannedEventRepository.findById(event.getBody().getPlannedEventId()).orElse(new PlannedEvent(""));
+                            return new EventResponse(event.getId(), event.getHappenedEventType(), EventBodyResponse.CreateRandomEvent(plannedEvent.getName()), event.getHappenedTime());
+                        }
+                        case player_killed -> {
+                            Player player = playerRepository.findById(event.getBody().getPlayerId()).orElse(new Player());
+                            return new EventResponse(event.getId(), event.getHappenedEventType(), EventBodyResponse.CreatePlayerKillEvent(player), event.getHappenedTime());
+                        }
+                        case player_injured -> {
+                            Player player = playerRepository.findById(event.getBody().getPlayerId()).orElse(new Player());
+                            return new EventResponse(event.getId(), event.getHappenedEventType(), EventBodyResponse.CreatePlayerInjuryEvent(player, event.getBody().getPlayerState()), event.getHappenedTime());
+                        }
+                        case supply -> {
+                            Player player = playerRepository.findById(event.getBody().getPlayerId()).orElse(new Player());
+                            return new EventResponse(event.getId(), event.getHappenedEventType(), EventBodyResponse.CreateSupplyEvent(player, event.getBody().getItem()), event.getHappenedTime());
+                        }
+                        default -> {
+                            System.out.println("Can't parse");
+                            return new EventResponse();
+                        }
+                    }
+                })
+                .sorted(Comparator.comparing(EventResponse::getTime)).toList();
     }
 }

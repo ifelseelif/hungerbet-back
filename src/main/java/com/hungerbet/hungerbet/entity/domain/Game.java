@@ -13,7 +13,6 @@ import java.util.*;
 @NoArgsConstructor
 public class Game {
     @Id
-    @GeneratedValue
     private UUID id;
     private String name;
     @Enumerated(EnumType.ORDINAL)
@@ -62,6 +61,8 @@ public class Game {
         this.happenedEvents = new ArrayList<>();
         this.plannedEvents = new ArrayList<>();
         this.items = new ArrayList<>();
+
+        this.id = UUID.randomUUID();
     }
 
     public void publish() throws HttpException {

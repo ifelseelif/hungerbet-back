@@ -1,5 +1,5 @@
 package com.hungerbet.hungerbet.entity.domain;
 
 public enum HappenedEventType {
-    player, supply, random, other
+    supply, random, other, player_killed, player_injured
 }

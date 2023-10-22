@@ -30,7 +30,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        if (request.getServletPath().contains("/auth") || request.getServletPath().contains("/swagger-ui") || request.getServletPath().contains("/v3")) {
+        if (request.getServletPath().contains("/auth") || request.getServletPath().contains("/swagger-ui") || request.getServletPath().contains("/v3") || request.getServletPath().contains("/game-events")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -52,12 +52,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             }
 
         } else {
-            if (!request.getServletPath().contains("/auth")) {
-                response.setStatus(HttpStatus.UNAUTHORIZED.value());
-                response.getWriter().write("Access token is missing or invalid");
-                response.flushBuffer();
-                return;
-            }
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            response.getWriter().write("Access token is missing or invalid");
+            response.flushBuffer();
+            return;
+
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {

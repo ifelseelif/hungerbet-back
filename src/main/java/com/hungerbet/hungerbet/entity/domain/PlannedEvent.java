@@ -12,7 +12,6 @@ import java.util.UUID;
 @NoArgsConstructor
 public class PlannedEvent {
     @Id
-    @GeneratedValue
     private UUID id;
     private String name;
     private String description;
@@ -26,6 +25,7 @@ public class PlannedEvent {
         this.description = description;
         this.dateStart = dateStart;
         this.isHappened = false;
+        this.id = UUID.randomUUID();
     }
 
     public PlannedEvent(String name) {

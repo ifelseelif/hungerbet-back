@@ -44,7 +44,7 @@ public class GameEventServiceImpl implements GameEventService {
         }
 
         switch (happenedEvent.getHappenedEventType()) {
-            case player -> {
+            case player_killed -> {
                 Player player = FindPlayer(request.getBody().getPlayerId());
                 player.changeState(request.getBody().getPlayerState());
                 playerRepository.save(player);
@@ -52,6 +52,11 @@ public class GameEventServiceImpl implements GameEventService {
                 if (game.IsFinish()) {
                     FinishGame(game);
                 }
+            }
+            case player_injured -> {
+                Player player = FindPlayer(request.getBody().getPlayerId());
+                player.changeState(request.getBody().getPlayerState());
+                playerRepository.save(player);
             }
             case random -> {
                 PlannedEvent plannedEvent = plannedEventRepository.findById(request.getBody().getPlannedEventId()).orElseThrow(() -> new HttpException("Not found", HttpStatus.NOT_FOUND));

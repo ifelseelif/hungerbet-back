@@ -1,5 +1,6 @@
 package com.hungerbet.hungerbet.controllers.models.events;
 
+import com.hungerbet.hungerbet.controllers.models.item.ItemResponse;
 import com.hungerbet.hungerbet.controllers.models.player.PlayerResponse;
 import com.hungerbet.hungerbet.entity.domain.Player;
 import com.hungerbet.hungerbet.entity.domain.PlayerState;
@@ -13,10 +14,13 @@ public class EventBodyResponse {
     private String degree;
     private String name;
     private String text;
+    private ItemResponse item;
 
-    public static EventBodyResponse CreateOtherEvent(PlayerResponse player, String text) {
+    public static EventBodyResponse CreateOtherEvent(Player player, String text) {
         EventBodyResponse eventBodyResponse = new EventBodyResponse();
-        eventBodyResponse.player = player;
+        if (player != null) {
+            eventBodyResponse.player = new PlayerResponse(player);
+        }
         eventBodyResponse.text = text;
         return eventBodyResponse;
     }
@@ -27,10 +31,24 @@ public class EventBodyResponse {
         return eventBodyResponse;
     }
 
-    public static EventBodyResponse CreatePlayerEvent(Player player, PlayerState playerState) {
+    public static EventBodyResponse CreatePlayerKillEvent(Player player) {
+        EventBodyResponse eventBodyResponse = new EventBodyResponse();
+        eventBodyResponse.player = new PlayerResponse(player);
+        return eventBodyResponse;
+    }
+
+    public static EventBodyResponse CreatePlayerInjuryEvent(Player player, PlayerState playerState) {
         EventBodyResponse eventBodyResponse = new EventBodyResponse();
         eventBodyResponse.player = new PlayerResponse(player);
         eventBodyResponse.degree = playerState.toString();
+        return eventBodyResponse;
+    }
+
+
+    public static EventBodyResponse CreateSupplyEvent(Player player, String item) {
+        EventBodyResponse eventBodyResponse = new EventBodyResponse();
+        eventBodyResponse.player = new PlayerResponse(player);
+        eventBodyResponse.item = new ItemResponse(item);
         return eventBodyResponse;
     }
 }

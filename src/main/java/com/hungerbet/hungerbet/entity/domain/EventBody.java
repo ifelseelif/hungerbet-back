@@ -24,13 +24,22 @@ public class EventBody {
     @Nullable
     private UUID plannedEventId;
     @Nullable
-    private UUID itemId;
+    private String item;
 
     public static EventBody CreateOtherEvent(UUID playerId, String text) {
         EventBody eventBody = new EventBody();
 
         eventBody.text = text;
         eventBody.playerId = playerId;
+
+        return eventBody;
+    }
+
+    public static EventBody CreateSupplyEvent(UUID playerId, String itemName) {
+        EventBody eventBody = new EventBody();
+
+        eventBody.playerId = playerId;
+        eventBody.item = itemName;
 
         return eventBody;
     }

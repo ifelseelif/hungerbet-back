@@ -29,7 +29,7 @@ public class ExceptionHandlingController {
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleError() {
+    public ResponseEntity<String> handleError(Exception e) {
         return ResponseEntity.internalServerError().body("Something went wrong");
     }
 }
