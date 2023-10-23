@@ -161,6 +161,6 @@ public class GameServiceImpl implements GameService {
                         }
                     }
                 })
-                .sorted(Comparator.comparing(EventResponse::getTime)).toList();
+                .sorted(Comparator.comparing(EventResponse::getTime).reversed()).toList();
     }
 }
