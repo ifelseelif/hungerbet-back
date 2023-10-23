@@ -54,6 +54,7 @@ public class GameResponse {
         if (game.getPlayers() != null) {
             this.players = game.getPlayers().stream()
                     .map(PlayerResponse::new)
+                    .sorted(Comparator.comparing(PlayerResponse::getGender).reversed())
                     .collect(groupingBy(PlayerResponse::getDistrict));
         }
 
