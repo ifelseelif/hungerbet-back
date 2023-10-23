@@ -5,13 +5,16 @@ import com.hungerbet.hungerbet.controllers.models.plannedEvents.PlannedEventResp
 import com.hungerbet.hungerbet.controllers.models.player.PlayerResponse;
 import com.hungerbet.hungerbet.controllers.models.users.UserResponseModel;
 import com.hungerbet.hungerbet.entity.domain.Game;
+import com.hungerbet.hungerbet.entity.domain.Player;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.groupingBy;
 
 @Data
 @NoArgsConstructor
@@ -28,7 +31,7 @@ public class GameResponse {
     private String description;
     private UserResponseModel manager;
     private PlayerResponse winner;
-    private List<PlayerResponse> players;
+    private Map<Integer, List<PlayerResponse>> players;
     private List<PlannedEventResponse> plannedEvents;
     private List<EventResponse> happenedEvents;
 
@@ -49,7 +52,9 @@ public class GameResponse {
         }
 
         if (game.getPlayers() != null) {
-            this.players = game.getPlayers().stream().map(PlayerResponse::new).toList();
+            this.players = game.getPlayers().stream()
+                    .map(PlayerResponse::new)
+                    .collect(groupingBy(PlayerResponse::getDistrict));
         }
 
         if (game.getPlannedEvents() != null) {

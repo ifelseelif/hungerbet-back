@@ -261,14 +261,14 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
         List<Player> playerList = new ArrayList<>();
         for (int i = 0; i < count / 2; i++) {
             Pair<String, String> pair = Names.mansNames.get(i);
-            Player player = new Player(pair.a, pair.b, 23, "male", i);
+            Player player = new Player(pair.a, pair.b, 23, "male", i + 1);
             playerRepository.save(player);
             playerList.add(player);
         }
 
         for (int i = 0; i < count / 2; i++) {
             Pair<String, String> pair = Names.womanNames.get(i);
-            Player player = new Player(pair.a, pair.b, 23, "female", i);
+            Player player = new Player(pair.a, pair.b, 23, "female", i + 1);
             playerRepository.save(player);
             playerList.add(player);
         }
